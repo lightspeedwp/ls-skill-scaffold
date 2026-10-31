@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<evaluation>
+  <qa_pair>
+    <question>List all available skill-scaffold templates filtered to CLI skill type in phase 1 only, with pagination limit of 10. How many total templates match this criteria?</question>
+    <answer>Depends on scaffold.config.json; typical answer: 3-5 templates for CLI phase 1</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Validate variables for an agent skill type with the following inputs: {repo_name: "test-api", author: "claude", license: "MIT"}. Are all required variables present?</question>
+    <answer>Yes (or No, depending on agent skill schema requirements in scaffold.config.json)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Render the template named "agent-handler.ts.mustache" with variables {repo_name: "my-agent", handler_name: "ProcessRequest"}. Return the first 50 characters of the rendered output.</question>
+    <answer>Template output depends on mustache template content and variable interpolation</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Get a dry-run preview of applying CLI skill templates to repo path "/tmp/test-repo" with repo name "test-cli-skill", filtering to phase 2 only. How many files would be created?</question>
+    <answer>Number matches count of phase 2 CLI templates in scaffold.config.json</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>List all template variants for validation skill type across phases 1, 2, and 3. Which variant tag appears most frequently across phases?</question>
+    <answer>Variant distribution depends on scaffold.config.json template organization</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Apply documentation skill templates to a test repository at "/tmp/doc-test" with repo name "docs-skill" and dry_run=true. Verify no files are actually written, then return the summary of proposed changes.</question>
+    <answer>Dry run returns proposed file list without side effects; files not written to disk</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Get skill metadata from skill_info tool. Extract the overall coverage percentage and total number of templates. What is the coverage-to-template ratio?</question>
+    <answer>Ratio = overall coverage / total templates (e.g., 98% / 24 templates = ~4% per template)</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Validate variables for CLI skill with incomplete required fields: {repo_name: "incomplete-test"}. List all missing required variables.</question>
+    <answer>List includes all required fields missing from the input object</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>Apply all templates to a repository in phase 3 only, with overwrite=false. If a file exists, verify it is skipped and filesWritten is less than total templates for that phase.</question>
+    <answer>filesWritten < total phase 3 templates; success=true if no errors on skipped files</answer>
+  </qa_pair>
+
+  <qa_pair>
+    <question>List templates filtered by validation skill type and page=2 with limit=5. Verify pagination works correctly and page metadata is accurate.</question>
+    <answer>Returns page 2 results with correct total count and page numbers</answer>
+  </qa_pair>
+</evaluation>
