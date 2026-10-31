@@ -4,7 +4,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync } from 'fs';
-import { join, dirname, sep } from 'path';
+import { join, dirname, sep, basename } from 'path';
 
 export interface TemplateInfo {
   name: string;
@@ -131,38 +131,37 @@ export class ScaffoldClient {
    * Supports: {{variable}}, {{#variable}}...{{/variable}} conditional blocks
    * For complex Mustache features, use the 'mustache' npm package
    *
-   * Security: Validates template name against config and prevents path traversal
+   * Security: Only accepts template names that exist in scaffold.config.json.
+   * Uses whitelisting + path resolution to prevent traversal attacks.
    */
   renderTemplate(templateName: string, variables: Record<string, string | number | boolean>): string {
-    // Validate template name: only allow names that appear in scaffold.config.json
     const config = this.loadConfig();
+
+    // Whitelist approach: only allow templates defined in scaffold.config.json
     const validTemplate = config.templates.find((t) =>
-      t.source.endsWith(templateName) || t.source.split('/').pop() === templateName
+      t.source === templateName || t.source.endsWith('/' + templateName)
     );
 
     if (!validTemplate) {
       throw new Error(`Template not found in configuration: ${templateName}`);
     }
 
-    // Prevent path traversal attacks
-    if (templateName.includes('..') || templateName.includes('/') || templateName.includes('\\')) {
-      throw new Error(`Invalid template name: contains path separators`);
+    // Use the config-provided source path, not user input
+    const fullTemplatePath = join(this.scaffoldDir, validTemplate.source);
+
+    // Verify path stays within scaffold directory using resolve + realpath
+    const baseDir = realpathSync(this.scaffoldDir);
+    const resolvedPath = realpathSync(fullTemplatePath);
+
+    if (!resolvedPath.startsWith(baseDir + sep)) {
+      throw new Error(`Template path outside scaffold directory (security violation)`);
     }
 
-    // Resolve paths securely with symlink resolution
-    const baseDir = realpathSync(join(this.scaffoldDir, 'templates'));
-    const templatePath = realpathSync(join(baseDir, templateName));
-
-    // Verify the resolved path is within the templates directory
-    if (!templatePath.startsWith(baseDir + sep)) {
-      throw new Error(`Template path outside templates directory (possible path traversal attempt)`);
+    if (!existsSync(resolvedPath)) {
+      throw new Error(`Template file not found: ${resolvedPath}`);
     }
 
-    if (!existsSync(templatePath)) {
-      throw new Error(`Template file not found: ${templatePath}`);
-    }
-
-    const templateContent = readFileSync(templatePath, 'utf-8');
+    const templateContent = readFileSync(resolvedPath, 'utf-8');
     let rendered = templateContent;
 
     // Replace {{variable}} patterns
@@ -260,19 +259,24 @@ export class ScaffoldClient {
 
   /**
    * Write file to target path
-   * Security: Validates path is within repo directory
+   * Security: Validates path is within repo directory using path resolution
    */
   writeFile(targetPath: string, content: string): void {
-    // Validate path doesn't escape the repo
+    // Reject obvious traversal attempts
     if (targetPath.includes('..')) {
       throw new Error(`Invalid path: contains parent directory reference`);
     }
 
-    const resolvedPath = realpathSync(this.scaffoldDir) + sep + targetPath.replace(/^\/+/, '');
+    // Resolve the base scaffold directory
+    const baseDir = realpathSync(this.scaffoldDir);
+
+    // Construct full path and resolve it
+    const fullPath = join(baseDir, targetPath);
+    const resolvedPath = realpathSync(dirname(fullPath)) + sep + basename(fullPath);
 
     // Verify the path is within the scaffold directory
-    if (!resolvedPath.startsWith(realpathSync(this.scaffoldDir) + sep)) {
-      throw new Error(`File path outside repository directory (possible path traversal attempt)`);
+    if (!resolvedPath.startsWith(baseDir + sep)) {
+      throw new Error(`File path outside repository directory (security violation)`);
     }
 
     const dir = dirname(resolvedPath);
