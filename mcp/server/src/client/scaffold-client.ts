@@ -3,7 +3,7 @@
  * Handles template loading, rendering, and file operations
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync, openSync, closeSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync } from 'fs';
 import { join, dirname, resolve, relative, sep } from 'path';
 
 export interface TemplateInfo {
@@ -61,7 +61,7 @@ export class ScaffoldClient {
     }
 
     const content = readFileSync(configPath, 'utf-8');
-    this.config = JSON.parse(content);
+    this.config = JSON.parse(content) as ScaffoldConfig;
     return this.config;
   }
 
@@ -262,7 +262,7 @@ export class ScaffoldClient {
    * Security: Uses resolve + relative to prevent traversal
    * Returns resolved path if valid, throws if invalid
    */
-  private resolveSafePath(targetPath: string): string {
+  private resolveSafePath(targetPath: string, _allowOverwrite: boolean = false): string {
     // Reject obvious traversal attempts early
     if (targetPath.includes('..')) {
       throw new Error(`Invalid path: contains parent directory reference`);

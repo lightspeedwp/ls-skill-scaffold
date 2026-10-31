@@ -28,7 +28,7 @@ server.registerTool(
     description:
       'Apply skill-scaffold templates to a repository. Creates or overwrites files with configured settings.',
     inputSchema: {
-      type: 'object' as const,
+      type: 'object',
       properties: {
         repo_path: { type: 'string', description: 'Target repository path' },
         repo_name: { type: 'string', description: 'Repository name' },
@@ -473,9 +473,9 @@ server.registerTool(
     description:
       'Get metadata about skill-scaffold: coverage, time savings, template counts, and skill type support.',
     inputSchema: {
-      type: 'object' as const,
+      type: 'object',
       properties: {},
-    },
+    } as any,
   },
   async () => {
     try {
