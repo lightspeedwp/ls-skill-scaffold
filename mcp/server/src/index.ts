@@ -175,8 +175,19 @@ async function handleScaffoldApply(args: any): Promise<string> {
         repo_name: args.repo_name,
         ...args.variables,
       });
+
       if (!args.dry_run) {
-        scaffoldClient.writeFile(`${args.repo_path}/${template.target}`, rendered, args.overwrite);
+        const targetPath = `${args.repo_path}/${template.target}`;
+        const exists = scaffoldClient.fileWouldBeOverwritten(targetPath);
+
+        // Skip if file exists and overwrite not allowed
+        if (exists && !args.overwrite && !template.overwrite) {
+          continue;
+        }
+
+        scaffoldClient.writeFile(targetPath, rendered, args.overwrite || template.overwrite);
+        filesWritten++;
+      } else {
         filesWritten++;
       }
     } catch (error) {
