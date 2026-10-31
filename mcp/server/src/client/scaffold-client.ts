@@ -3,8 +3,8 @@
  * Handles template loading, rendering, and file operations
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync } from 'fs';
+import { join, dirname, sep } from 'path';
 
 export interface TemplateInfo {
   name: string;
@@ -130,12 +130,36 @@ export class ScaffoldClient {
    * Render a single template with basic Mustache syntax support
    * Supports: {{variable}}, {{#variable}}...{{/variable}} conditional blocks
    * For complex Mustache features, use the 'mustache' npm package
+   *
+   * Security: Validates template name against config and prevents path traversal
    */
   renderTemplate(templateName: string, variables: Record<string, string | number | boolean>): string {
-    const templatePath = join(this.scaffoldDir, 'templates', templateName);
+    // Validate template name: only allow names that appear in scaffold.config.json
+    const config = this.loadConfig();
+    const validTemplate = config.templates.find((t) =>
+      t.source.endsWith(templateName) || t.source.split('/').pop() === templateName
+    );
+
+    if (!validTemplate) {
+      throw new Error(`Template not found in configuration: ${templateName}`);
+    }
+
+    // Prevent path traversal attacks
+    if (templateName.includes('..') || templateName.includes('/') || templateName.includes('\\')) {
+      throw new Error(`Invalid template name: contains path separators`);
+    }
+
+    // Resolve paths securely with symlink resolution
+    const baseDir = realpathSync(join(this.scaffoldDir, 'templates'));
+    const templatePath = realpathSync(join(baseDir, templateName));
+
+    // Verify the resolved path is within the templates directory
+    if (!templatePath.startsWith(baseDir + sep)) {
+      throw new Error(`Template path outside templates directory (possible path traversal attempt)`);
+    }
 
     if (!existsSync(templatePath)) {
-      throw new Error(`Template not found: ${templatePath}`);
+      throw new Error(`Template file not found: ${templatePath}`);
     }
 
     const templateContent = readFileSync(templatePath, 'utf-8');
@@ -236,13 +260,26 @@ export class ScaffoldClient {
 
   /**
    * Write file to target path
+   * Security: Validates path is within repo directory
    */
   writeFile(targetPath: string, content: string): void {
-    const dir = dirname(targetPath);
+    // Validate path doesn't escape the repo
+    if (targetPath.includes('..')) {
+      throw new Error(`Invalid path: contains parent directory reference`);
+    }
+
+    const resolvedPath = realpathSync(this.scaffoldDir) + sep + targetPath.replace(/^\/+/, '');
+
+    // Verify the path is within the scaffold directory
+    if (!resolvedPath.startsWith(realpathSync(this.scaffoldDir) + sep)) {
+      throw new Error(`File path outside repository directory (possible path traversal attempt)`);
+    }
+
+    const dir = dirname(resolvedPath);
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
-    writeFileSync(targetPath, content, 'utf-8');
+    writeFileSync(resolvedPath, content, 'utf-8');
   }
 
   /**
