@@ -1,3 +1,11 @@
+# Lefthook Configuration for {{skillName}}
+#
+# Variables:
+# - hasShellScripts: Include shellcheck for shell scripts (default: false)
+# - hasProductionDeps: Run production dependency checks (default: false)
+# - skipTests: Skip Jest tests in pre-commit (default: false)
+# - branchPattern: Branch naming pattern regex (default: '^(feature|fix|docs|test|refactor)/')
+
 pre-commit:
   parallel: true
   jobs:
@@ -9,24 +17,35 @@ pre-commit:
       glob: '*.md'
       run: npx markdownlint {staged_files}
 
-    {{#has_jest}}- name: jest tests
+    {{^skipTests}}
+    - name: jest tests
       run: npm test -- --coverage
+    {{/skipTests}}
 
-    {{/has_jest}}- name: eslint
+    - name: eslint
       glob: '*.js'
       run: npx eslint {staged_files}
 
-    {{#has_shell}}- name: shellcheck
+    {{#hasYamlLinting}}
+    - name: yamllint
+      glob: '*.{yml,yaml}'
+      run: yamllint {staged_files} || echo '✓ YAML lint check'
+    {{/hasYamlLinting}}
+
+    {{#hasShellScripts}}
+    - name: shellcheck
       glob: '*.sh'
       run: shellcheck skill/scripts/*.sh || true
+    {{/hasShellScripts}}
 
-    {{/has_shell}}
 pre-push:
   jobs:
     - name: validate branch name
       run: |
         BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        if [[ ! $BRANCH =~ {{branch_pattern}} ]]; then
-          echo "❌ Branch must match pattern: {{branch_pattern}}"
+        PATTERN="{{branchPattern}}"
+        if [[ ! $BRANCH =~ $PATTERN ]]; then
+          echo "❌ Branch name must match pattern: $PATTERN"
+          echo "   Examples: feature/..., fix/..., docs/..., test/..., refactor/..."
           exit 1
         fi

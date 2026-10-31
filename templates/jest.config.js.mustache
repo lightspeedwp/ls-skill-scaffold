@@ -1,0 +1,46 @@
+/**
+ * Jest Configuration for {{skillName}}
+ *
+ * Variables:
+ * - testCoverageThreshold: Minimum coverage percentage (default: 80)
+ * - useEsModules: Use ES modules (default: false)
+ * - includeSkriptCoverage: Include script coverage in reports (default: false)
+ */
+
+module.exports = {
+  testEnvironment: 'node',
+  {{#useEsModules}}
+  transform: {
+    '^.+\\.m?js$': ['babel-jest', { rootMode: 'upward' }],
+  },
+  extensionsToTreatAsEsm: ['.js'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  {{/useEsModules}}
+  {{^useEsModules}}
+  testEnvironment: 'node',
+  {{/useEsModules}}
+
+  collectCoverageFrom: [
+    '__tests__/**/*.test.js'{{#includeSkriptCoverage}},
+    'skill/scripts/**/*.js'{{/includeSkriptCoverage}}
+  ],
+
+  coverageThreshold: {
+    global: {
+      branches: {{testCoverageThreshold}},
+      functions: {{testCoverageThreshold}},
+      lines: {{testCoverageThreshold}},
+      statements: {{testCoverageThreshold}},
+    },
+  },
+
+  testMatch: [
+    '**/__tests__/**/*.test.js',
+  ],
+
+  verbose: true,
+
+  testTimeout: 10000,
+};

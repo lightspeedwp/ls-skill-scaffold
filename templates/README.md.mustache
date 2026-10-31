@@ -1,0 +1,228 @@
+# {{skillName}}
+
+{{skillDescription}}
+
+## What Problem Does This Solve?
+
+{{problemStatement | default 'This skill automates common development workflows:'}}
+
+{{#problemFeatures}}
+- {{.}}
+{{/problemFeatures}}
+
+## Features
+
+{{#features}}
+- **{{title}}**: {{description}}
+{{/features}}
+
+## Quick Start
+
+```bash
+# 1. Verify dependencies
+{{#hasSetupScript}}
+./skill/scripts/setup-dependencies.sh
+{{/hasSetupScript}}
+npm install
+
+# 2. Try it out
+{{#quickStartCommand}}
+{{{quickStartCommand}}}
+{{/quickStartCommand}}
+{{^quickStartCommand}}
+npm test
+{{/quickStartCommand}}
+```
+
+## Installation
+
+### As a Claude Skill
+
+1. Clone this repository to `~/.claude/skills/{{skillSlug}}/`
+2. Or symlink: `ln -s /path/to/{{skillSlug}} ~/.claude/skills/{{skillSlug}}`
+3. Open Claude Code → Settings → Skills
+4. Find **{{skillName}}** and toggle Enable
+
+### As a Node Package
+
+```bash
+npm install {{skillSlug}}
+{{#hasProductionDeps}}
+# Then use in your code:
+const {{skillSlug}} = require('{{skillSlug}}');
+{{/hasProductionDeps}}
+```
+
+## Usage
+
+{{#hasSkillDirectory}}
+### Via Claude Skill
+
+Invoke the skill directly in Claude Code:
+
+```
+/{{skillSlug}} [options]
+```
+
+For complete skill documentation, see:
+- [skill/SKILL.md](./skill/SKILL.md) — Complete skill documentation
+- [docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md) — Tutorial walkthrough
+{{/hasSkillDirectory}}
+
+{{#usageExamples}}
+### Example: {{title}}
+
+```
+{{example}}
+```
+
+{{description}}
+{{/usageExamples}}
+
+## Project Structure
+
+```
+{{skillSlug}}/
+{{#hasSkillDirectory}}
+├── skill/                    # Claude Skill
+│   ├── SKILL.md             # Skill documentation
+{{#hasShellScripts}}
+│   ├── scripts/             # CLI tools
+│   │   └── __tests__/       # Jest tests
+{{/hasShellScripts}}
+│   └── evals/               # Skill evaluation
+{{/hasSkillDirectory}}
+{{#hasPluginDirectory}}
+├── plugin/                   # Claude Plugin
+│   ├── manifest.json
+│   └── README.md
+{{/hasPluginDirectory}}
+├── docs/                     # 📚 Documentation
+├── __tests__/                # Jest unit tests
+{{#hasBatsTests}}
+├── tests/                    # BATS integration tests
+{{/hasBatsTests}}
+├── README.md                 # Project overview (this file)
+├── CLAUDE.md                 # Claude Code configuration
+└── package.json              # NPM configuration
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Jest tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Verbose output
+npm run test:verbose
+{{#hasBatsTests}}
+
+# All tests (Jest + BATS)
+npm run test:all
+{{/hasBatsTests}}
+```
+
+## Documentation
+
+{{#hasDocs}}
+- [CLAUDE.md](./CLAUDE.md) — Claude Code setup and configuration
+- [docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md) — First steps and walkthrough
+- [docs/BEST-PRACTICES.md](./docs/BEST-PRACTICES.md) — Safe practices and patterns
+{{#hasShellScripts}}
+- [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) — Common issues and solutions
+- [docs/FAQ.md](./docs/FAQ.md) — Frequently asked questions
+{{/hasShellScripts}}
+{{/hasDocs}}
+
+## Requirements
+
+- Node.js {{nodeVersion}} or higher
+{{#hasShellScripts}}
+- Bash 4.0+
+- Standard Unix tools (jq, grep, sed, etc.)
+{{/hasShellScripts}}
+{{#customRequirements}}
+- {{.}}
+{{/customRequirements}}
+
+## Development
+
+### Setup
+
+```bash
+npm install
+```
+
+### Run Tests
+
+```bash
+npm test          # All tests with coverage
+npm run test:watch # Watch mode
+```
+
+### Code Quality
+
+```bash
+npm run lint:all  # Run all linters
+npm run lint:js   # ESLint only
+npm run lint:md   # Markdown linting
+```
+
+### Make Changes
+
+1. Create a new branch: `git checkout -b feature/your-feature`
+2. Make your changes and test: `npm test`
+3. Commit with message: `git commit -m "feat: description"`
+4. Push and open a PR: `git push origin feature/your-feature`
+
+## Contributing
+
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for new functionality
+4. Ensure `npm test` passes
+5. Submit a pull request
+
+For detailed contribution guidelines, see [CONTRIBUTING.md](./CONTRIBUTING.md) (if present).
+
+## Support
+
+- **Documentation**: See [docs/](./docs/) folder
+{{#skillDocPath}}
+- **Skill Documentation**: [{{skillDocPath}}]({{skillDocPath}})
+{{/skillDocPath}}
+- **Issues**: GitHub Issues for bug reports and feature requests
+- **Discussions**: GitHub Discussions for questions and ideas
+
+## License
+
+{{license | default 'MIT'}}
+
+{{#licenseText}}
+{{{licenseText}}}
+{{/licenseText}}
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for version history and improvements.
+
+## Credits
+
+Created by {{authorName}}
+
+{{#acknowledgments}}
+- {{.}}
+{{/acknowledgments}}
+
+---
+
+**Ready to get started?** Read [CLAUDE.md](./CLAUDE.md) for Claude Code configuration.

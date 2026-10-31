@@ -1,0 +1,266 @@
+# Claude Code Configuration
+
+This document provides configuration and best practices for working with {{skillName}} in Claude Code.
+
+## Project Overview
+
+**{{skillName}}** — {{skillDescription}}
+
+- **Project Type**: {{projectType}}
+- **Install path**: `~/.claude/skills/{{skillSlug}}/`
+- **Language**: {{language}}
+- **Testing**: Jest{{#hasBatsTests}} + BATS{{/hasBatsTests}}
+{{#features}}
+- **Key Features**: {{.}}
+{{/features}}
+
+## Getting Started
+
+### 1. First Time Setup
+
+```bash
+# Verify dependencies
+{{#hasShellScripts}}
+./skill/scripts/setup-dependencies.sh --verbose
+{{/hasShellScripts}}
+npm install
+
+{{#hasShellScripts}}
+# Install missing dependencies if needed
+./skill/scripts/setup-dependencies.sh --install
+
+{{/hasShellScripts}}
+# Run preflight checks
+{{#hasShellScripts}}
+./skill/scripts/preflight-check.sh
+{{/hasShellScripts}}
+npm test
+```
+
+### 2. Enable the Skill
+
+- Open Claude Code → Settings → Skills
+- Find **{{skillName}}** and toggle Enable
+- Or enable via command line: `Settings → Skills → {{skillSlug}}`
+
+### 3. Try Your First Task
+
+```bash
+cd ~/.claude/skills/{{skillSlug}}
+{{#quickStartCommand}}
+{{{quickStartCommand}}}
+{{/quickStartCommand}}
+{{^quickStartCommand}}
+npm test
+{{/quickStartCommand}}
+```
+
+## Project Structure
+
+```
+{{skillSlug}}/
+{{#hasSkillDirectory}}
+├── skill/                           # Claude Skill
+│   ├── SKILL.md                    # Skill documentation
+│   ├── scripts/                    # CLI tools
+{{#hasShellScripts}}
+│   │   ├── main-script.sh
+│   │   ├── utility-script.sh
+│   │   └── __tests__/              # Jest tests (co-located)
+│   │       ├── *.test.js
+│   │       └── utils.js
+{{/hasShellScripts}}
+│   └── evals/                      # Skill evaluation cases
+{{/hasSkillDirectory}}
+{{#hasPluginDirectory}}
+├── plugin/                          # Claude Plugin
+│   ├── manifest.json               # Plugin configuration
+│   └── README.md                   # Plugin docs
+{{/hasPluginDirectory}}
+├── docs/                           # Documentation
+│   ├── GETTING-STARTED.md
+│   ├── BEST-PRACTICES.md
+{{#hasShellScripts}}
+│   ├── TROUBLESHOOTING.md
+{{/hasShellScripts}}
+│   └── ... (additional guides)
+├── __tests__/                      # Jest unit tests
+│   └── *.test.js
+{{#hasBatsTests}}
+├── tests/                          # BATS shell integration tests
+│   └── *.bats
+{{/hasBatsTests}}
+├── jest.config.js                  # Jest configuration
+├── README.md                       # Main project README
+├── CLAUDE.md                       # Claude Code configuration (this file)
+├── AGENTS.md                       # Agent definitions
+└── package.json                    # NPM configuration
+```
+
+## Testing
+
+### Jest Tests (Unit & Integration)
+
+```bash
+npm test                    # Run all Jest tests with coverage
+npm run test:watch        # Watch mode for development
+npm run test:verbose      # Verbose output with coverage report
+```
+
+{{#hasBatsTests}}
+### BATS Tests (Shell Integration Tests)
+
+```bash
+# Install BATS first (if needed)
+brew install bats-core    # macOS
+# or
+sudo apt-get install bats  # Linux
+
+# Run BATS integration tests
+npm run test:bats         # Run integration tests
+npm run test:all          # Run both Jest and BATS
+```
+{{/hasBatsTests}}
+
+## Common Tasks
+
+### Run Tests
+
+```bash
+npm test                    # All tests with coverage
+npm run test:watch        # Watch mode
+npm run test:verbose      # With coverage report
+```
+
+### Code Quality
+
+```bash
+npm run lint:js           # Run ESLint
+npm run lint:md           # Check Markdown
+{{#hasYamlLinting}}
+npm run lint:yaml         # Check YAML
+{{/hasYamlLinting}}
+npm run lint:all          # All linting checks
+```
+
+### View Skill Documentation
+
+{{#hasSkillDirectory}}
+```bash
+less ./skill/SKILL.md     # Complete skill docs
+```
+{{/hasSkillDirectory}}
+
+## Workflow Guidelines
+
+### 1. Making Changes
+
+```bash
+# Create a new branch
+git checkout -b {{branchPattern | default 'feature'}}/your-feature
+
+# Make changes and test
+npm test
+
+# Commit with descriptive message
+git commit -m "feat: add new feature"
+
+# Push and open PR
+git push origin {{branchPattern | default 'feature'}}/your-feature
+```
+
+### 2. Before Committing
+
+```bash
+# Verify tests pass
+npm test
+
+# Check code quality
+npm run lint:all
+
+# Review changes
+git diff
+git status
+```
+
+## Commit Message Format
+
+Follow conventional commits:
+
+```
+type(scope): description
+
+body (optional)
+
+footer (optional)
+Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+```
+
+Types:
+- `feat:` — New feature
+- `fix:` — Bug fix
+- `docs:` — Documentation only
+- `test:` — Test changes
+- `refactor:` — Code refactoring
+- `chore:` — Maintenance
+
+Example:
+
+```
+feat({{skillSlug}}): add new functionality
+
+Adds comprehensive new feature with validation.
+Includes unit and integration tests.
+
+Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
+```
+
+## Troubleshooting
+
+### Skill Not Showing in Claude Code
+
+```bash
+# Verify skill is in correct location
+ls ~/.claude/skills/{{skillSlug}}/
+
+{{#hasSkillDirectory}}
+# Verify structure
+ls skill/SKILL.md{{#hasPluginDirectory}} plugin/manifest.json{{/hasPluginDirectory}}
+
+{{/hasSkillDirectory}}
+# Restart Claude Code
+# Settings → Skills → Refresh
+```
+
+### Tests Failing
+
+```bash
+# Run with verbose output
+npm test -- --verbose
+
+# Check specific test file
+npm test -- name-of-test.test.js
+
+# See test output without coverage
+npm test -- --no-coverage
+```
+
+## Key Documentation
+
+- **[README.md](./README.md)** — Project overview
+{{#hasSkillDirectory}}
+- **[skill/SKILL.md](./skill/SKILL.md)** — Complete skill documentation
+{{/hasSkillDirectory}}
+- **[docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md)** — First steps
+- **[docs/BEST-PRACTICES.md](./docs/BEST-PRACTICES.md)** — Safe practices
+{{#hasShellScripts}}
+- **[docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)** — Problem solving
+{{/hasShellScripts}}
+
+## Questions?
+
+Review the relevant documentation file or check the FAQ section of the skill docs.
+
+---
+
+**Ready to start?** Run `npm test` to validate your setup.

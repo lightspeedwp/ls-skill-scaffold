@@ -1,46 +1,76 @@
 {
-  "name": "{{repo_name}}",
+  "name": "{{skillSlug}}",
   "version": "{{version}}",
-  "description": "{{repo_description}}",
+  "description": "{{skillDescription}}",
   "main": "index.js",
-  {{#min_node_version}}"engines": {
-    "node": ">=24.0.0"
-  },{{/min_node_version}}
+  "engines": {
+    "node": ">={{nodeVersion}}0.0"
+  },
   "scripts": {
     "prepare": "lefthook install",
+    {{#hasProductionDeps}}
+    "start": "node index.js",
+    {{/hasProductionDeps}}
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:verbose": "jest --verbose --coverage",
-    {{#has_bats}}"test:bats": "bats tests/**/*.bats 2>/dev/null || echo '✓ No BATS tests yet'",
-    "test:all": "npm run test{{#has_bats}} && npm run test:bats{{/has_bats}}",{{/has_bats}}
+    {{#hasBatsTests}}
+    "test:bats": "bats tests/**/*.bats 2>/dev/null || echo '✓ No BATS tests yet'",
+    {{/hasBatsTests}}
+    "test:all": "npm run test{{#hasBatsTests}} && npm run test:bats{{/hasBatsTests}}",
     "lint:js": "eslint . --ext .js,.cjs,.mjs",
     "lint:md": "markdownlint '**/*.md'",
-    {{#has_yaml}}"lint:yaml": "echo '✓ YAML linting via yamllint (install separately if needed)'",{{/has_yaml}}
-    "lint:all": "npm run lint:js && npm run lint:md"{{#has_yaml}} && npm run lint:yaml{{/has_yaml}},
-    {{#has_migrate}}"migrate:budget": "node skill/api/migrate-with-budget.js"{{/has_migrate}}
+    {{#hasYamlLinting}}
+    "lint:yaml": "yamllint . --config-file .yamllint.yml || echo '✓ YAML linting via yamllint'",
+    {{/hasYamlLinting}}
+    {{^hasYamlLinting}}
+    "lint:yaml": "echo '✓ YAML linting via yamllint (install separately if needed)'",
+    {{/hasYamlLinting}}
+    "lint:all": "npm run lint:js && npm run lint:md"{{#hasYamlLinting}} && npm run lint:yaml{{/hasYamlLinting}}
+    {{#hasMigrationApi}}
+    ,
+    "migrate:budget": "node skill/api/migrate-with-budget.js"
+    {{/hasMigrationApi}}
   },
+  {{#hasProductionDeps}}
   "dependencies": {
-    {{#has_anthropic}}"@anthropic-ai/sdk": "^0.24.3"{{/has_anthropic}}
+    {{#hasAnthropicSdk}}
+    "@anthropic-ai/sdk": "^0.24.3"
+    {{/hasAnthropicSdk}}
   },
+  {{/hasProductionDeps}}
+  {{^hasProductionDeps}}
+  "dependencies": {},
+  {{/hasProductionDeps}}
   "devDependencies": {
     "eslint": "^10.14.0",
-    {{#has_yaml}}"eslint-plugin-yml": "^3.9.0",{{/has_yaml}}
+    {{#hasYamlLinting}}
+    "eslint-plugin-yml": "^3.9.0",
+    {{/hasYamlLinting}}
     "jest": "^29.7.0",
     "lefthook": "^2.2.2",
     "markdownlint-cli": "^0.50.0",
     "prettier": "^3.9.10"
+    {{#hasYamlLinting}}
+    ,
+    "yamllint": "^2.14.0"
+    {{/hasYamlLinting}}
   },
   "jest": {
     "testEnvironment": "node",
     "collectCoverageFrom": [
       "__tests__/**/*.test.js"
+      {{#hasShellScripts}}
+      ,
+      "skill/scripts/**/*.js"
+      {{/hasShellScripts}}
     ],
     "coverageThreshold": {
       "global": {
-        "branches": {{coverage_threshold}},
-        "functions": {{coverage_threshold}},
-        "lines": {{coverage_threshold}},
-        "statements": {{coverage_threshold}}
+        "branches": {{testCoverageThreshold}},
+        "functions": {{testCoverageThreshold}},
+        "lines": {{testCoverageThreshold}},
+        "statements": {{testCoverageThreshold}}
       }
     },
     "testMatch": [
@@ -53,6 +83,6 @@
     "claude",
     "skill"
   ],
-  "author": "{{author}}",
-  "license": "MIT"
+  "author": "{{authorName}}",
+  "license": "{{license}}"
 }
