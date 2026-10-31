@@ -4,8 +4,17 @@
 .github
 .vscode
 .DS_Store
+
+# Environment & Secrets (always ignore — security-critical)
 .env
 .env.local
+.env.*.local
+.env.production
+.env.development
+.npmrc
+*.pem
+*.key
+*.secret
 
 # Documentation
 docs/

@@ -166,18 +166,20 @@
     {
       "source": "templates/.npmignore.mustache",
       "target": ".npmignore",
-      "overwrite": true,
+      "overwrite": false,
       "required": false,
       "phase": 3,
-      "specialized": true
+      "specialized": true,
+      "note": "Merge with existing .npmignore to preserve custom rules; security-critical secrets always ignored"
     },
     {
       "source": "templates/.gitignore.mustache",
       "target": ".gitignore",
-      "overwrite": true,
+      "overwrite": false,
       "required": false,
       "phase": 3,
-      "specialized": true
+      "specialized": true,
+      "note": "Merge with existing .gitignore to preserve custom rules; .env files unconditionally ignored"
     }
   ],
   "files": [

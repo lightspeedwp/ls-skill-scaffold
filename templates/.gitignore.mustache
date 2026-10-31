@@ -23,12 +23,12 @@ build/
 *.tar.gz
 *.zip
 
-# Environment
-{{#includeDotEnv}}
+# Environment (always ignore — security-critical)
 .env
 .env.local
 .env.*.local
-{{/includeDotEnv}}
+.env.production
+.env.development
 
 # IDE & Editor
 .vscode/
