@@ -58,6 +58,126 @@
       "overwrite": true,
       "required": false,
       "phase": 2
+    },
+    {
+      "source": "templates/jest.config.js.strict.mustache",
+      "target": "jest.config.js.strict",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "jest:strict"
+    },
+    {
+      "source": "templates/jest.config.js.esm.mustache",
+      "target": "jest.config.js.esm",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "jest:esm"
+    },
+    {
+      "source": "templates/package.json.cli.mustache",
+      "target": "package.json.cli",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "package.json:cli"
+    },
+    {
+      "source": "templates/package.json.validation.mustache",
+      "target": "package.json.validation",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "package.json:validation"
+    },
+    {
+      "source": "templates/package.json.docs.mustache",
+      "target": "package.json.docs",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "package.json:docs"
+    },
+    {
+      "source": "templates/.eslintrc.strict.mustache",
+      "target": ".eslintrc.strict",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "eslintrc:strict"
+    },
+    {
+      "source": "templates/.eslintrc.browser.mustache",
+      "target": ".eslintrc.browser",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "variant": "eslintrc:browser"
+    },
+    {
+      "source": "templates/.github/workflows/test.yml.mustache",
+      "target": ".github/workflows/test.yml",
+      "overwrite": true,
+      "required": false,
+      "phase": 3,
+      "variant": "workflow:test-only"
+    },
+    {
+      "source": "templates/.github/workflows/test-matrix.yml.mustache",
+      "target": ".github/workflows/test-matrix.yml",
+      "overwrite": true,
+      "required": false,
+      "phase": 3,
+      "variant": "workflow:test-matrix"
+    },
+    {
+      "source": "templates/.github/workflows/release.yml.mustache",
+      "target": ".github/workflows/release.yml",
+      "overwrite": true,
+      "required": false,
+      "phase": 3,
+      "variant": "workflow:release"
+    },
+    {
+      "source": "templates/.github/workflows/security.yml.mustache",
+      "target": ".github/workflows/security.yml",
+      "overwrite": true,
+      "required": false,
+      "phase": 3,
+      "variant": "workflow:security"
+    },
+    {
+      "source": "templates/AGENTS.md.mustache",
+      "target": "AGENTS.md",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "specialized": true
+    },
+    {
+      "source": "templates/PROMPT_TEMPLATE.md.mustache",
+      "target": "PROMPT_TEMPLATE.md",
+      "overwrite": false,
+      "required": false,
+      "phase": 3,
+      "specialized": true
+    },
+    {
+      "source": "templates/.npmignore.mustache",
+      "target": ".npmignore",
+      "overwrite": true,
+      "required": false,
+      "phase": 3,
+      "specialized": true
+    },
+    {
+      "source": "templates/.gitignore.mustache",
+      "target": ".gitignore",
+      "overwrite": true,
+      "required": false,
+      "phase": 3,
+      "specialized": true
     }
   ],
   "files": [

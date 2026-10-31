@@ -1,0 +1,32 @@
+{
+  "name": "{{skillSlug}}",
+  "version": "{{version}}",
+  "description": "{{skillDescription}}",
+  "main": "README.md",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "prepare": "lefthook install",
+    "lint:md": "markdownlint '**/*.md'",
+    "lint:all": "npm run lint:md",
+    "validate": "npm run lint:all"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "markdownlint-cli": "^0.39.0",
+    "lefthook": "^1.8.0"
+  },
+  "author": "{{authorName}}",
+  "license": "{{license}}",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lightspeedwp/{{skillSlug}}.git"
+  },
+  "keywords": [
+    "{{skillSlug}}",
+    "documentation"
+  ]
+}

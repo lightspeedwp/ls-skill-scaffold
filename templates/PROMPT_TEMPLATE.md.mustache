@@ -1,0 +1,174 @@
+# {{promptName}}: Prompt Template
+
+**Version:** {{version}}
+
+{{#promptPurpose}}
+**Purpose:** {{promptPurpose}}
+{{/promptPurpose}}
+
+---
+
+## Overview
+
+This prompt defines the instructions and context for {{skillName}} workflows.
+
+---
+
+## Prompt Variables
+
+Use these variables in your prompts to customize behavior:
+
+{{#promptVariables}}
+### `{{variableName}}`
+
+{{variableDescription}}
+
+**Type:** {{variableType}}
+**Required:** {{variableRequired}}
+**Default:** {{variableDefault}}
+
+**Example:**
+```
+{{variableExample}}
+```
+
+{{/promptVariables}}
+
+{{^promptVariables}}
+### skillName
+The name of the skill being operated on.
+
+### skillSlug
+The repository slug for the skill.
+
+### skillDescription
+A one-line description of the skill's purpose.
+
+### projectType
+The type of project: "cli", "validation", or "documentation"
+{{/promptVariables}}
+
+---
+
+## Prompt Structure
+
+### System Prompt
+
+The system prompt provides core instructions and constraints:
+
+```
+You are {{skillName}}.
+
+Purpose: {{promptPurpose}}
+
+Guidelines:
+1. Follow the project structure outlined in CLAUDE.md
+2. Respect the testing strategy in {{skillSlug}}
+3. Maintain consistency with existing patterns
+4. Document all significant changes
+```
+
+### User Prompt
+
+Provide context and task instructions:
+
+```
+{{skillType}} skill: {{skillSlug}}
+Task: [Your task here]
+Context: [Relevant files, requirements, constraints]
+```
+
+### Expected Response
+
+The agent should:
+1. Acknowledge the task
+2. Outline approach
+3. Execute step-by-step
+4. Verify results
+5. Report findings
+
+---
+
+## Usage Examples
+
+{{#promptExamples}}
+### {{exampleTitle}}
+
+**Prompt:**
+```
+{{examplePrompt}}
+```
+
+**Expected Result:**
+{{exampleResult}}
+
+{{/promptExamples}}
+
+{{^promptExamples}}
+### Example 1: Basic Task
+
+**Prompt:**
+```
+Skill: {{skillSlug}}
+Task: Validate the current test suite
+Context: Use jest.config.js and __tests__/ folder
+```
+
+### Example 2: With Constraints
+
+**Prompt:**
+```
+Skill: {{skillSlug}}
+Task: Add a new test for the migration API
+Context: Must maintain 90%+ coverage
+Constraints: Use Jest + BATS, follow existing patterns
+```
+{{/promptExamples}}
+
+---
+
+## Best Practices
+
+1. **Be Specific** — Clear task descriptions prevent ambiguity
+2. **Provide Context** — Reference CLAUDE.md, existing code, requirements
+3. **Set Constraints** — Coverage thresholds, style guides, dependencies
+4. **Use Variables** — Leverage prompt variables for reusability
+5. **Verify Results** — Always check output before proceeding
+
+---
+
+## Advanced Usage
+
+### Chaining Prompts
+
+Use multiple prompts in sequence:
+
+1. Analysis prompt (understand problem)
+2. Planning prompt (outline approach)
+3. Implementation prompt (execute)
+4. Verification prompt (validate results)
+
+### Conditional Prompts
+
+Use {{skillType}} and other variables to adapt:
+
+```
+{{#hasCLI}}
+Include CLI testing instructions
+{{/hasCLI}}
+{{#hasBatsTests}}
+Include BATS test requirements
+{{/hasBatsTests}}
+```
+
+---
+
+## Related Documentation
+
+- [CLAUDE.md](./CLAUDE.md) — Development guide
+- [SKILL.md](./SKILL.md) — Skill capabilities
+- [README.md](./README.md) — Quick start
+
+---
+
+**Template Version:** {{version}} | **License:** {{license}}

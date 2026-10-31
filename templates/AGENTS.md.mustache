@@ -1,0 +1,138 @@
+# {{skillName}}: Agents & Capabilities
+
+{{skillDescription}}
+
+---
+
+## Agent Overview
+
+This skill exposes one or more agents that extend Claude Code's capabilities for {{skillType}} workflows.
+
+### Primary Agent
+
+**Name:** `{{skillSlug}}-agent`
+
+**Purpose:**
+{{#agentPurpose}}{{agentPurpose}}{{/agentPurpose}}{{^agentPurpose}}Automate {{skillSlug}} workflows within Claude Code{{/agentPurpose}}
+
+**Version:** {{version}}
+
+---
+
+## Agent Capabilities
+
+{{#agentCapabilities}}
+### {{capabilityName}}
+
+{{capabilityDescription}}
+
+{{/agentCapabilities}}
+
+{{^agentCapabilities}}
+Agents provide automated support for:
+- Task analysis and validation
+- Configuration management
+- Integration with existing tools
+- Reporting and documentation
+{{/agentCapabilities}}
+
+---
+
+## How to Use Agents
+
+### In Claude Code
+
+Invoke the agent using the Claude Code interface:
+
+```
+/{{skillSlug}}-agent [task description]
+```
+
+### With Custom Prompts
+
+Agents inherit project context from CLAUDE.md. Customize agent behavior by:
+
+1. **Setting environment variables** in `.env` or shell
+2. **Providing input files** in the working directory
+3. **Specifying options** in the agent invocation
+
+### Example Usage
+
+{{#agentUsageExamples}}
+#### {{usageTitle}}
+
+```
+/{{skillSlug}}-agent {{usageCommand}}
+```
+
+{{usageDescription}}
+
+{{/agentUsageExamples}}
+
+{{^agentUsageExamples}}
+```
+# Basic usage
+/{{skillSlug}}-agent analyze ./path/to/target
+
+# With options
+/{{skillSlug}}-agent analyze ./path/to/target --strict --verbose
+
+# Check status
+/{{skillSlug}}-agent status
+```
+{{/agentUsageExamples}}
+
+---
+
+## Agent Limitations
+
+{{#agentLimitations}}
+- {{.}}
+{{/agentLimitations}}
+
+{{^agentLimitations}}
+- Agents operate within the Claude Code sandbox
+- External API calls require proper authentication
+- Large file processing may timeout (100+ MB)
+- Real-time streaming is not supported
+{{/agentLimitations}}
+
+---
+
+## Integration with Workflows
+
+Agents work best when:
+- Part of a multi-step Claude Code workflow
+- Given clear, structured input
+- Used with adequate context (CLAUDE.md, docs/)
+- Combined with automated testing
+
+---
+
+## Troubleshooting
+
+### Agent not responding
+
+1. Check agent is installed: `npm list {{skillSlug}}`
+2. Verify environment variables are set
+3. Check CLAUDE.md for configuration
+4. Review agent logs in terminal
+
+### Performance issues
+
+- Use `--verbose` flag to debug
+- Reduce input file size
+- Check available disk space
+- Review memory usage
+
+---
+
+## Related Documentation
+
+- [CLAUDE.md](./CLAUDE.md) — Project configuration
+- [SKILL.md](./SKILL.md) — Skill overview
+- [README.md](./README.md) — Quick start guide
+
+---
+
+**Made with ♥ by LightSpeed | {{version}} | {{license}} License**

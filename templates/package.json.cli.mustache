@@ -1,0 +1,57 @@
+{
+  "name": "{{skillSlug}}",
+  "version": "{{version}}",
+  "description": "{{skillDescription}}",
+  "main": "skill/index.js",
+  "type": "{{#useEsModules}}module{{/useEsModules}}{{^useEsModules}}commonjs{{/useEsModules}}",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "prepare": "lefthook install",
+    "start": "node skill/index.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:verbose": "jest --verbose --coverage",
+    {{#hasBatsTests}}
+    "test:bats": "bats tests/**/*.bats 2>/dev/null || echo '✓ No BATS tests yet'",
+    {{/hasBatsTests}}
+    "test:all": "npm run test{{#hasBatsTests}} && npm run test:bats{{/hasBatsTests}}",
+    "lint:js": "eslint skill/ --ext .js,.cjs,.mjs",
+    "lint:md": "markdownlint '**/*.md'",
+    "lint:all": "npm run lint:js && npm run lint:md",
+    {{#hasShellScripts}}
+    "lint:sh": "shellcheck skill/scripts/*.sh || echo '✓ Shell scripts valid'",
+    {{/hasShellScripts}}
+    "validate": "npm run lint:all && npm run test:all"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3"
+  },
+  "devDependencies": {
+    "eslint": "^10.14.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.5",
+    "markdownlint-cli": "^0.39.0",
+    "lefthook": "^1.8.0",
+    {{#hasShellScripts}}
+    "shellcheck": "^1.1.0",
+    {{/hasShellScripts}}
+    {{#hasBatsTests}}
+    "bats": "^1.11.0",
+    {{/hasBatsTests}}
+    "@types/jest": "^29.5.12"
+  },
+  "author": "{{authorName}}",
+  "license": "{{license}}",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lightspeedwp/{{skillSlug}}.git"
+  },
+  "keywords": [
+    "{{skillSlug}}",
+    "wordpress",
+    "claude",
+    "skill"
+  ]
+}

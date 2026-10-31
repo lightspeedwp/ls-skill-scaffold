@@ -1,0 +1,44 @@
+/**
+ * Jest Configuration for {{skillName}} (ES Modules)
+ *
+ * Configured for ES6 module support with proper transpilation
+ *
+ * Variables:
+ * - testCoverageThreshold: Coverage percentage (default: 80)
+ */
+
+module.exports = {
+  testEnvironment: 'node',
+  transform: {
+    '^.+\\.m?js$': ['babel-jest', { rootMode: 'upward' }],
+  },
+  extensionsToTreatAsEsm: ['.js'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+
+  collectCoverageFrom: [
+    '__tests__/**/*.test.js',
+    'skill/**/*.js',
+  ],
+
+  coverageThreshold: {
+    global: {
+      branches: {{testCoverageThreshold}},
+      functions: {{testCoverageThreshold}},
+      lines: {{testCoverageThreshold}},
+      statements: {{testCoverageThreshold}},
+    },
+  },
+
+  testMatch: [
+    '**/__tests__/**/*.test.js',
+    '**/?(*.)+(spec|test).js',
+  ],
+
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/',
+    '/coverage/',
+  ],
+};

@@ -1,0 +1,50 @@
+/**
+ * Jest Configuration for {{skillName}} (Strict Mode)
+ *
+ * Strict mode enforces 90%+ coverage threshold across all metrics
+ * Use for production skills and critical infrastructure
+ *
+ * Variables:
+ * - useEsModules: Use ES modules (default: false)
+ */
+
+module.exports = {
+  testEnvironment: 'node',
+  {{#useEsModules}}
+  transform: {
+    '^.+\\.m?js$': ['babel-jest', { rootMode: 'upward' }],
+  },
+  extensionsToTreatAsEsm: ['.js'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  {{/useEsModules}}
+
+  collectCoverageFrom: [
+    '__tests__/**/*.test.js',
+    'skill/scripts/**/*.js',
+    'skill/api/**/*.js',
+  ],
+
+  coverageThreshold: {
+    global: {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90,
+    },
+  },
+
+  testMatch: [
+    '**/__tests__/**/*.test.js',
+    '**/?(*.)+(spec|test).js',
+  ],
+
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/',
+    '/coverage/',
+  ],
+
+  verbose: true,
+};
