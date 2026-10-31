@@ -1,0 +1,92 @@
+# macOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+*.swp
+*~
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# Node.js / npm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+.pnpm-debug.log
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+.mocha-env
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+temp/
+
+# Claude Cloud / Local development
+.claude/
+.claude-cloud/
+.claude-local/
+
+# Logs
+logs/
+*.log
+
+# Lock files (only for development, not package-lock.json if it's a library)
+# yarn.lock  # Uncomment if using yarn exclusively
+
+# VS Code settings (per-user, should not be committed)
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+!.vscode/extensions.json.example
+!.vscode/settings.json.example
+!.vscode/launch.json.example
+
+# macOS user-specific files
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+
+# Test artifacts
+test-templates.js
+COMPLETION-REPORT.txt
+MANIFEST.txt
+TEMPLATES-CREATED.md
