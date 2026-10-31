@@ -5,13 +5,13 @@
  * Enables Claude agents to invoke skill-scaffold operations as first-class tools
  */
 
-import { McpServer } from '@modelcontextprotocol/server';
-import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 import { ScaffoldClient } from './client/scaffold-client.js';
 
 // Initialize MCP Server
-const server = new McpServer({
+const server = new Server({
   name: 'skill-scaffold',
   version: '1.0.0',
 });
