@@ -5,17 +5,34 @@
  * Enables Claude agents to invoke skill-scaffold operations as first-class tools
  */
 
+import { z } from 'zod';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ToolSchema } from '@modelcontextprotocol/sdk/types.js';
 
 import { ScaffoldClient } from './client/scaffold-client.js';
+
+// Define request schemas with method literals for setRequestHandler
+const ListToolsRequestHandlerSchema = z.object({
+  method: z.literal('tools/list'),
+  params: z.object({}).optional(),
+});
+
+const CallToolRequestHandlerSchema = z.object({
+  method: z.literal('tools/call'),
+  params: z.object({
+    name: z.string(),
+    arguments: z.record(z.unknown()),
+  }),
+});
 
 // Initialize MCP Server
 const server = new Server({
   name: 'skill-scaffold',
   version: '1.0.0',
 });
+
+// Declare tools capability
+(server as any).registerCapabilities({ tools: {} });
 
 // Initialize Scaffold Client
 const scaffoldClient = new ScaffoldClient(process.env.SCAFFOLD_DIR || process.cwd());
@@ -111,12 +128,12 @@ const tools: any[] = [
 ];
 
 // Register tools list handler
-server.setRequestHandler(ToolSchema as any, async () => ({
+server.setRequestHandler(ListToolsRequestHandlerSchema as any, async () => ({
   tools,
 }));
 
 // Handle tool calls
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestHandlerSchema as any, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
