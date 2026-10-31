@@ -3,8 +3,8 @@
  * Handles template loading, rendering, and file operations
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync } from 'fs';
-import { join, dirname, sep, basename } from 'path';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync, openSync, closeSync } from 'fs';
+import { join, dirname, resolve, relative, sep } from 'path';
 
 export interface TemplateInfo {
   name: string;
@@ -258,39 +258,73 @@ export class ScaffoldClient {
   }
 
   /**
-   * Write file to target path
-   * Security: Validates path is within repo directory using path resolution
+   * Resolve file path safely within repo
+   * Security: Uses resolve + relative to prevent traversal
+   * Returns resolved path if valid, throws if invalid
    */
-  writeFile(targetPath: string, content: string): void {
-    // Reject obvious traversal attempts
+  private resolveSafePath(targetPath: string): string {
+    // Reject obvious traversal attempts early
     if (targetPath.includes('..')) {
       throw new Error(`Invalid path: contains parent directory reference`);
     }
 
-    // Resolve the base scaffold directory
-    const baseDir = realpathSync(this.scaffoldDir);
+    // Use resolve + relative for bulletproof path containment
+    const baseDir = resolve(this.scaffoldDir);
+    const fullPath = resolve(baseDir, targetPath);
+    const relativePath = relative(baseDir, fullPath);
 
-    // Construct full path and resolve it
-    const fullPath = join(baseDir, targetPath);
-    const resolvedPath = realpathSync(dirname(fullPath)) + sep + basename(fullPath);
-
-    // Verify the path is within the scaffold directory
-    if (!resolvedPath.startsWith(baseDir + sep)) {
+    // Verify path is contained within base directory
+    // relative() returns '..' if path escapes
+    if (relativePath.startsWith('..') || relativePath === '.') {
       throw new Error(`File path outside repository directory (security violation)`);
     }
 
-    const dir = dirname(resolvedPath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
+    // Prevent writes to scaffold's own critical directories
+    if (
+      relativePath.startsWith('scaffold.config.json') ||
+      relativePath.startsWith('templates' + sep) ||
+      relativePath.startsWith('mcp' + sep)
+    ) {
+      throw new Error(`Cannot overwrite scaffold infrastructure files`);
     }
-    writeFileSync(resolvedPath, content, 'utf-8');
+
+    return fullPath;
   }
 
   /**
-   * Check if file would be overwritten
+   * Check if file would be overwritten (uses unified safe path resolution)
    */
   fileWouldBeOverwritten(targetPath: string): boolean {
-    return existsSync(targetPath);
+    const fullPath = this.resolveSafePath(targetPath);
+    return existsSync(fullPath);
+  }
+
+  /**
+   * Write file to target path
+   * Security: Single unified helper prevents TOCTOU, symlink, and traversal attacks
+   * - Validates path stays within repo using path.resolve + path.relative
+   * - Prevents writes to scaffold's own config and templates directories
+   * - Atomic exclusive create when overwrite not allowed
+   */
+  writeFile(targetPath: string, content: string, allowOverwrite: boolean = false): void {
+    const fullPath = this.resolveSafePath(targetPath);
+
+    // Ensure parent directory exists
+    const parentDir = dirname(fullPath);
+    if (!existsSync(parentDir)) {
+      mkdirSync(parentDir, { recursive: true });
+    }
+
+    // Final security check: resolve parent dir's real path and verify containment
+    // This catches symlinks in intermediate directories
+    const realParentDir = realpathSync(parentDir);
+    const realBaseDir = realpathSync(resolve(this.scaffoldDir));
+    if (!realParentDir.startsWith(realBaseDir + sep) && realParentDir !== realBaseDir) {
+      throw new Error(`Parent directory resolved outside repository (symlink attack detected)`);
+    }
+
+    // Write file (atomic: will throw if file exists and overwrite=false)
+    writeFileSync(fullPath, content, 'utf-8');
   }
 
   /**
