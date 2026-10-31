@@ -1,0 +1,22 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/gh/anthropics/claude-code-schema@0.1.0/claude-code-schema.json",
+  "name": "{{repo_name}}",
+  "version": "1.0.0",
+  "description": "{{repo_description}}",
+  "gitignore": [
+    "node_modules/",
+    ".env",
+    "*.log",
+    "dist/",
+    "build/",
+    "coverage/"
+  ],
+  "excludePath": [
+    ".git",
+    "node_modules",
+    ".env",
+    ".next",
+    "dist",
+    "coverage"
+  ]
+}

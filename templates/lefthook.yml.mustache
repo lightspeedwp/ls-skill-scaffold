@@ -1,0 +1,32 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: prettier
+      glob: '*.{js,json,yml,yaml,md}'
+      run: npx prettier --write {staged_files}
+
+    - name: markdownlint
+      glob: '*.md'
+      run: npx markdownlint {staged_files}
+
+    {{#has_jest}}- name: jest tests
+      run: npm test -- --coverage
+
+    {{/has_jest}}- name: eslint
+      glob: '*.js'
+      run: npx eslint {staged_files}
+
+    {{#has_shell}}- name: shellcheck
+      glob: '*.sh'
+      run: shellcheck skill/scripts/*.sh || true
+
+    {{/has_shell}}
+pre-push:
+  jobs:
+    - name: validate branch name
+      run: |
+        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        if [[ ! $BRANCH =~ {{branch_pattern}} ]]; then
+          echo "❌ Branch must match pattern: {{branch_pattern}}"
+          exit 1
+        fi

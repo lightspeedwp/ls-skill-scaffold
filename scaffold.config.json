@@ -1,0 +1,67 @@
+{
+  "version": "1.0.0",
+  "name": "skill-scaffold",
+  "description": "Universal scaffold for WordPress/Claude skills",
+  "templates": [
+    {
+      "source": "templates/package.json.mustache",
+      "target": "package.json",
+      "overwrite": false,
+      "required": true
+    },
+    {
+      "source": "templates/lefthook.yml.mustache",
+      "target": "lefthook.yml",
+      "overwrite": true,
+      "required": true
+    },
+    {
+      "source": "templates/.coderabbit.yaml.mustache",
+      "target": ".coderabbit.yaml",
+      "overwrite": true,
+      "required": true
+    }
+  ],
+  "files": [
+    {
+      "source": "templates/.eslintrc.cjs",
+      "target": ".eslintrc.cjs",
+      "required": true
+    },
+    {
+      "source": "templates/.prettierrc",
+      "target": ".prettierrc",
+      "required": true
+    },
+    {
+      "source": "templates/.markdownlint.jsonc",
+      "target": ".markdownlint.jsonc",
+      "required": true
+    }
+  ],
+  "requiredVariables": [
+    "repo_name",
+    "repo_description",
+    "author",
+    "version"
+  ],
+  "optionalVariables": {
+    "min_node_version": "24.0.0",
+    "coverage_threshold": 80,
+    "branch_pattern": "^(wp-db-|skill-|main|develop|master)$",
+    "branch_prefix": "skill-",
+    "has_jest": true,
+    "has_bats": false,
+    "has_shell": false,
+    "has_yaml": false,
+    "has_anthropic": false,
+    "has_migrate": false
+  },
+  "postInstall": {
+    "run": [
+      "npm install",
+      "npx lefthook install",
+      "npm run lint:all"
+    ]
+  }
+}
