@@ -9,9 +9,7 @@
 *.swp
 *~
 
-# IDE & Editor files
-.vscode/
-.idea/
+# IDE & Editor files (per-user settings only - committed templates use .example suffix)
 *.swp
 *.swo
 *~
@@ -22,6 +20,8 @@
 .settings/
 *.sublime-workspace
 *.sublime-project
+.vscode/*.local.json
+.idea/*.local.xml
 
 # Node.js / npm (testing artifacts only - skill-scaffold doesn't need package.json)
 node_modules/
@@ -59,10 +59,7 @@ build/
 .tmp/
 temp/
 
-# Claude Cloud / Local development
-.claude/
-.claude-cloud/
-.claude-local/
+# Claude Cloud / Local development (committed as shared configuration)
 
 # Logs
 logs/

@@ -1,0 +1,21 @@
+{
+  "name": "Skill Scaffold",
+  "description": "Professional configuration scaffold for WordPress/Claude skills",
+  "version": "1.0.0",
+  "settings": {
+    "model": "claude-opus-5-5",
+    "effort": "medium",
+    "permissions": {
+      "allow": [
+        "bash",
+        "npm",
+        "git",
+        "node"
+      ]
+    }
+  },
+  "hooks": {
+    "pre-commit": ".claude/hooks/pre-commit.sh",
+    "pre-push": ".claude/hooks/pre-push.sh"
+  }
+}
