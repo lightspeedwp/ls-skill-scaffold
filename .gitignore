@@ -23,11 +23,12 @@
 *.sublime-workspace
 *.sublime-project
 
-# Node.js / npm
+# Node.js / npm (testing artifacts only - skill-scaffold doesn't need package.json)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package.json
 package-lock.json
 pnpm-lock.yaml
 .pnpm-debug.log
