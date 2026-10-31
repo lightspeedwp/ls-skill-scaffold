@@ -1,0 +1,158 @@
+# {{skillName}}
+
+> {{skillDescription}}
+
+**Version:** {{version}} | **License:** {{license}}
+
+---
+
+## Overview
+
+{{skillName}} is a{{#hasCLI}} CLI skill{{/hasCLI}}{{#hasAPI}} module skill{{/hasAPI}}{{#hasValidation}} validation skill{{/hasValidation}}{{^hasCLI}}{{^hasAPI}}{{^hasValidation}} skill{{/hasValidation}}{{/hasAPI}}{{/hasCLI}} for LightSpeed. It{{#skillDescription}} {{skillDescription|lowercase}}{{/skillDescription}}.
+
+**Key Benefits:**
+{{#features}}
+- {{.}}
+{{/features}}
+
+---
+
+## What Problem Does This Solve?
+
+{{#useCases}}
+- **{{useCaseTitle}}:** {{useCaseDescription}}
+{{/useCases}}
+
+---
+
+## Quick Start
+
+### Installation
+
+```bash
+npm install {{skillSlug}}
+```
+
+{{#quickStartCommand}}
+### First Command
+
+```bash
+{{quickStartCommand}}
+```
+{{/quickStartCommand}}
+
+---
+
+## Installation
+
+{{#installation}}
+{{installation}}
+{{/installation}}
+
+{{^installation}}
+1. Clone or download this skill
+2. Run `npm install`
+3. Review `.github/CLAUDE.md` for development setup
+4. Start using the skill in your workflow
+{{/installation}}
+
+---
+
+## Usage Examples
+
+{{#usageExamples}}
+### {{usageTitle}}
+
+```bash
+{{usageCode}}
+```
+
+{{usageDescription}}
+{{/usageExamples}}
+
+{{^usageExamples}}
+See `CLAUDE.md` for integration examples and development workflows.
+{{/usageExamples}}
+
+---
+
+## How It Works
+
+{{#howItWorks}}
+{{howItWorks}}
+{{/howItWorks}}
+
+{{^howItWorks}}
+This skill integrates with {{skillType}} workflows. See the skill documentation for architectural details.
+{{/howItWorks}}
+
+---
+
+## Advanced Usage
+
+{{#advancedUsage}}
+{{advancedUsage}}
+{{/advancedUsage}}
+
+{{^advancedUsage}}
+For advanced configurations, environment variables, and integration patterns, see `CLAUDE.md`.
+{{/advancedUsage}}
+
+---
+
+## FAQ
+
+{{#faq}}
+### {{faqQuestion}}
+
+{{faqAnswer}}
+
+{{/faq}}
+
+{{^faq}}
+**Q: How do I report issues?**
+A: Open an issue on GitHub or contact the LightSpeed team.
+
+**Q: Can I modify this skill?**
+A: Yes! Follow the contribution guidelines in `CLAUDE.md`.
+
+**Q: What versions of Node.js are supported?**
+A: Node {{nodeMinVersion}} and later.
+{{/faq}}
+
+---
+
+## Troubleshooting
+
+{{#troubleshooting}}
+### {{troubleTitle}}
+
+**Symptom:** {{troubleSymptom}}
+**Solution:** {{troubleSolution}}
+
+{{/troubleshooting}}
+
+{{^troubleshooting}}
+### Common Issues
+
+If you encounter problems:
+
+1. Check `CLAUDE.md` for setup and configuration
+2. Review test files in `__tests__/` for usage patterns
+3. Run `npm run lint:all` to validate your environment
+4. Check npm logs: `npm install --loglevel verbose`
+
+For more help, see the [GitHub Issues](https://github.com/lightspeedwp/{{skillSlug}}/issues).
+{{/troubleshooting}}
+
+---
+
+## Related Skills & Documentation
+
+- [LightSpeed Skills Directory](https://github.com/lightspeedwp)
+- [CLAUDE.md](./CLAUDE.md) — Development guide
+- [README.md](./README.md) — Project overview
+
+---
+
+**Made with ♥ by LightSpeed**

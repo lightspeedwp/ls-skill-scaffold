@@ -7,36 +7,77 @@
       "source": "templates/package.json.mustache",
       "target": "package.json",
       "overwrite": false,
-      "required": true
+      "required": true,
+      "phase": 1
     },
     {
       "source": "templates/lefthook.yml.mustache",
       "target": "lefthook.yml",
       "overwrite": true,
-      "required": true
+      "required": true,
+      "phase": 1
     },
     {
       "source": "templates/.coderabbit.yaml.mustache",
       "target": ".coderabbit.yaml",
       "overwrite": true,
-      "required": true
+      "required": true,
+      "phase": 1
+    },
+    {
+      "source": "templates/.eslintrc.json.mustache",
+      "target": ".eslintrc.json",
+      "overwrite": true,
+      "required": false,
+      "phase": 2
+    },
+    {
+      "source": "templates/SKILL.md.mustache",
+      "target": "SKILL.md",
+      "overwrite": false,
+      "required": false,
+      "phase": 2
+    },
+    {
+      "source": "templates/.editorconfig.mustache",
+      "target": ".editorconfig",
+      "overwrite": true,
+      "required": true,
+      "phase": 2
+    },
+    {
+      "source": "templates/.github/workflows/ci.yml.mustache",
+      "target": ".github/workflows/ci.yml",
+      "overwrite": true,
+      "required": false,
+      "phase": 2
+    },
+    {
+      "source": "templates/.markdownlint.json.mustache",
+      "target": ".markdownlint.json",
+      "overwrite": true,
+      "required": false,
+      "phase": 2
     }
   ],
   "files": [
     {
       "source": "templates/.eslintrc.cjs",
       "target": ".eslintrc.cjs",
-      "required": true
+      "required": true,
+      "phase": 1
     },
     {
       "source": "templates/.prettierrc",
       "target": ".prettierrc",
-      "required": true
+      "required": true,
+      "phase": 1
     },
     {
       "source": "templates/.markdownlint.jsonc",
       "target": ".markdownlint.jsonc",
-      "required": true
+      "required": true,
+      "phase": 1
     }
   ],
   "requiredVariables": [
