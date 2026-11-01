@@ -1,0 +1,102 @@
+[
+  {
+    "query": "I want to create a new CLI skill for WordPress database migrations. I need package.json, jest config, GitHub workflows, the whole setup. Can you help me bootstrap all the files?",
+    "should_trigger": true,
+    "note": "Direct skill creation request with specific needs"
+  },
+  {
+    "query": "I'm building my first skill and I have no idea what files go in a skill repository. Should I have a src/ folder? Tests? How do I structure this?",
+    "should_trigger": true,
+    "note": "New user guidance for skill creation"
+  },
+  {
+    "query": "We need a validation skill that checks WordPress plugin compatibility. Can you generate the boilerplate from templates so I don't have to set up eslint, jest, etc. manually?",
+    "should_trigger": true,
+    "note": "Validation skill with template request"
+  },
+  {
+    "query": "I've got all the details ready: repo_name=my-agent-skill, author=Ashley, skill_type=agent. Can you generate the scaffold for phase 1 and phase 2?",
+    "should_trigger": true,
+    "note": "Form mode: user provides variables upfront"
+  },
+  {
+    "query": "Our team is creating 5 new documentation skills this quarter. Can I apply the skill-scaffold templates to each one in batch?",
+    "should_trigger": true,
+    "note": "Batch scaffold generation"
+  },
+  {
+    "query": "Help me set up a skill that generates SEO metadata. I need the standard CI/CD, linting rules, test structure — basically everything you'd put in a professional skill repo.",
+    "should_trigger": true,
+    "note": "Custom skill + full boilerplate"
+  },
+  {
+    "query": "I want to use Mustache templates to generate skill files quickly. Can I use the skill-scaffold approach for phase 1 coverage?",
+    "should_trigger": true,
+    "note": "Template generation request"
+  },
+  {
+    "query": "What's the fastest way to create a new CLI skill without spending an hour configuring everything? I just want a template that works.",
+    "should_trigger": true,
+    "note": "Implicit scaffolding request"
+  },
+  {
+    "query": "I built a skill and now I need to add TypeScript, eslint, prettier, and GitHub workflows to it. How do I retrofit these without breaking what's already there?",
+    "should_trigger": false,
+    "note": "This is adding config to existing skill, not creating new scaffold (different workflow)"
+  },
+  {
+    "query": "My skill is timing out when running tests. Can you help me debug why the Jest suite is slow?",
+    "should_trigger": false,
+    "note": "Skill debugging, not scaffolding"
+  },
+  {
+    "query": "I have a skill that works locally but fails in CI. The error is about missing environment variables. How do I fix this?",
+    "should_trigger": false,
+    "note": "Troubleshooting existing skill, not generation"
+  },
+  {
+    "query": "Can you review my skill's code and suggest refactoring opportunities? I want to make it more maintainable.",
+    "should_trigger": false,
+    "note": "Code review, not scaffolding"
+  },
+  {
+    "query": "I want to publish my completed skill to npm. What's the release workflow?",
+    "should_trigger": false,
+    "note": "Skill publishing, not generation"
+  },
+  {
+    "query": "Can I integrate this skill into Claude Code so it runs automatically? What do I need to configure?",
+    "should_trigger": false,
+    "note": "Skill integration, not scaffolding"
+  },
+  {
+    "query": "I'm new to skill development and want to understand the architecture. What does a skill structure look like? What are the best practices?",
+    "should_trigger": false,
+    "note": "Educational/conceptual, not generation (borderline but docs are better for this)"
+  },
+  {
+    "query": "I need to update the dependencies in my existing skill's package.json. Jest went to v30, and I need to handle that.",
+    "should_trigger": false,
+    "note": "Dependency maintenance, not scaffolding"
+  },
+  {
+    "query": "Create a new CLI tool skill for me. Repo name is `wp-backup-tool`, author is `Ash`, and I want phase 1 + phase 2 templates with linting and testing ready to go.",
+    "should_trigger": true,
+    "note": "Complete generation request with all details"
+  },
+  {
+    "query": "Our documentation skill needs an update. Can you regenerate the .eslintrc and GitHub workflows to the latest standards from the scaffold?",
+    "should_trigger": true,
+    "note": "Updating existing skill files using scaffold templates"
+  },
+  {
+    "query": "I'm testing a skill against 100 edge cases. How do I structure my test files to cover all of them efficiently?",
+    "should_trigger": false,
+    "note": "Testing strategy, not scaffolding"
+  },
+  {
+    "query": "What's the difference between a CLI skill, validation skill, and agent skill? Which one should I build for monitoring WordPress performance?",
+    "should_trigger": false,
+    "note": "Skill type guidance (educational), not generation—though borderline"
+  }
+]
