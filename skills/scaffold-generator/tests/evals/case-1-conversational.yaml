@@ -1,0 +1,105 @@
+case_id: case-1-conversational
+title: First-time user creating CLI skill, step-by-step guidance
+description: |
+  A new user wants to create a CLI skill for a deployment tool.
+  They're unfamiliar with skill scaffolding and need conversational guidance
+  through the entire process, including variable discovery and validation.
+
+prompt: |
+  I want to create a new CLI skill that helps with deployments. I think it should
+  have commands for validate, deploy, and rollback. Not sure what all I need to set
+  up though - can you walk me through it?
+
+interaction_mode: conversational
+skill_type: cli
+phases: all
+
+expected:
+  flow_steps:
+    - type: discover
+      description: Agent detects conversational mode and skill type
+      success_criteria:
+        - interaction_mode detected correctly
+        - skill_type identified as 'cli'
+        - user guidance tone established
+
+    - type: template_selection
+      description: Agent queries available CLI templates
+      success_criteria:
+        - list_templates called with skill_type=cli
+        - returns at least 3 templates
+        - displays templates to user in readable format
+
+    - type: variable_discovery
+      description: Agent explains and collects required variables
+      success_criteria:
+        - describe schema for selected template
+        - prompt for each variable with context
+        - validate input before proceeding
+        - suggest sensible defaults for some fields
+
+    - type: preview
+      description: Show dry-run with substitutions
+      success_criteria:
+        - call scaffold_dry_run with collected variables
+        - display proposed file structure
+        - show variable substitutions with highlighting
+        - ask for confirmation before proceeding
+
+    - type: apply
+      description: Apply template to create skill scaffold
+      success_criteria:
+        - call scaffold_apply with user-confirmed variables
+        - report files created successfully
+        - provide next steps guidance
+
+  final_output:
+    - skill scaffold created in target directory
+    - all required files present (skill.json, scripts, tests, docs)
+    - variables correctly substituted
+    - user receives guidance on what to do next
+
+assertions:
+  - name: interaction_flow
+    type: flow
+    description: Full conversational workflow completes
+    check: |
+      All steps in flow_steps execute in order without errors
+
+  - name: variable_validation
+    type: validation
+    description: Variables collected are valid for template
+    check: |
+      All collected variables pass validate_variables MCP tool
+      No validation errors returned
+
+  - name: file_creation
+    type: output
+    description: Correct files created with proper substitution
+    check: |
+      - skill.json exists and is valid JSON
+      - skill.json contains correct package name
+      - README.md exists and contains substituted title
+      - test files exist in correct location
+
+  - name: guidance_quality
+    type: guidance
+    description: User receives helpful guidance throughout
+    check: |
+      - Each step includes explanation of what's happening
+      - Variable descriptions are clear and contextual
+      - Defaults provided are reasonable
+      - Final guidance is actionable
+
+eval_metadata:
+  priority: high
+  difficulty: medium
+  estimated_duration_seconds: 120
+  requires_user_input: true
+  requires_mcp_tools:
+    - list_templates
+    - validate_variables
+    - scaffold_dry_run
+    - scaffold_apply
+  expected_errors: 0
+  expected_warnings: 0

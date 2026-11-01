@@ -1,0 +1,108 @@
+{
+  "name": "scaffold-generator",
+  "version": "1.0.0",
+  "title": "Skill Scaffold Generator",
+  "description": "Generate skill scaffolds with guided setup or fast form-mode application. Integrates with MCP server for template discovery, validation, preview, and application.",
+  "author": "Claude Code",
+  "license": "MIT",
+  "homepage": "https://github.com/Anthropic/scaffold-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Anthropic/scaffold-generator"
+  },
+  "keywords": [
+    "skill",
+    "scaffold",
+    "mcp",
+    "generator",
+    "template",
+    "cli",
+    "validation"
+  ],
+  "category": "development",
+  "subcategory": "scaffolding",
+  "tags": [
+    "scaffolding",
+    "template-generation",
+    "skill-development",
+    "mcp-integration",
+    "conversational",
+    "form-mode"
+  ],
+  "capabilities": {
+    "mcp_server_required": "skill-scaffold",
+    "mcp_tools_required": [
+      "list_templates",
+      "list_variants",
+      "template_render",
+      "validate_variables",
+      "scaffold_dry_run",
+      "scaffold_apply",
+      "skill_info"
+    ]
+  },
+  "commands": [
+    {
+      "name": "generate",
+      "description": "Generate skill scaffold with guided setup",
+      "usage": "scaffold-generator --repo-path /path/to/repo --skill-type cli",
+      "mode": "conversational"
+    },
+    {
+      "name": "apply",
+      "description": "Apply scaffold with explicit variables (fast mode)",
+      "usage": "scaffold-generator --repo-path /path/to/repo --mode form --variables '{...}'",
+      "mode": "form"
+    }
+  ],
+  "dependencies": {
+    "python": ">=3.8",
+    "mcp_server": "skill-scaffold@>=1.0.0"
+  },
+  "scripts": {
+    "main": "scripts/scaffold_generator.py",
+    "discover": "scripts/scaffold_discover.py",
+    "validate": "scripts/scaffold_validate.py",
+    "preview": "scripts/scaffold_preview.py",
+    "apply": "scripts/scaffold_apply.py"
+  },
+  "configuration": {
+    "interaction_modes": [
+      "conversational",
+      "form"
+    ],
+    "skill_types": [
+      "cli",
+      "validation",
+      "documentation",
+      "agent"
+    ],
+    "phases": [
+      "1",
+      "2",
+      "3"
+    ],
+    "overwrite_protection": true,
+    "dry_run_support": true
+  },
+  "evaluation": {
+    "test_cases": [
+      "case-1-conversational",
+      "case-2-form-mode",
+      "case-3-error-handling"
+    ],
+    "test_directory": "tests/evals",
+    "metadata_file": "tests/evals/eval_metadata.json"
+  },
+  "metadata": {
+    "created": "2026-10-31",
+    "updated": "2026-10-31",
+    "status": "production",
+    "maintenance_status": "active",
+    "phases_implemented": [
+      "1",
+      "2",
+      "3"
+    ]
+  }
+}

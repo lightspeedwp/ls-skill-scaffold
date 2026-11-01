@@ -1,0 +1,123 @@
+case_id: case-3-error-handling
+title: Invalid variables, error messages, and recovery
+description: |
+  User provides invalid or incomplete variables. The system should detect
+  errors, provide clear error messages with suggestions, and guide recovery.
+  Tests error resilience and user experience for problem scenarios.
+
+prompt: |
+  Create skill scaffold with these variables:
+  skill_name: my_skill
+  skill_description: A skill
+  version: invalid-version
+  phases: 99
+
+interaction_mode: form
+skill_type: cli
+
+expected:
+  error_scenarios:
+    - type: invalid_version
+      input_field: version
+      input_value: "invalid-version"
+      error_message: "Version must follow semantic versioning (X.Y.Z format)"
+      recovery:
+        - suggest_fix: "Did you mean 1.0.0?"
+        - show_example: "Valid: 1.2.3, 2.0.0-alpha, 1.0.0+build.1"
+        - allow_retry: true
+
+    - type: invalid_phases
+      input_field: phases
+      input_value: "99"
+      error_message: "Invalid phase: 99. Valid phases are 1, 2, 3, or 'all'"
+      recovery:
+        - show_valid_options: "Available phases: 1 (Discovery), 2 (Implementation), 3 (Deployment)"
+        - suggest_fix: "Did you mean all phases?"
+        - allow_retry: true
+
+    - type: invalid_skill_name
+      input_field: skill_name
+      input_value: "my_skill"
+      error_message: "Skill name should use kebab-case (lowercase with hyphens)"
+      recovery:
+        - suggest_fix: "Did you mean my-skill?"
+        - explain_rule: "This matches your repository naming conventions"
+        - allow_retry: true
+
+    - type: missing_required_field
+      input_field: skill_description
+      input_value: "A skill"
+      error_message: "Skill description too short (minimum 10 characters)"
+      recovery:
+        - explain_requirement: "Description should be clear and descriptive"
+        - show_example: "Example: A CLI tool for managing database migrations"
+        - allow_retry: true
+
+  recovery_flow:
+    - detect_error: True
+    - show_error_message: True
+    - provide_suggestion: True
+    - allow_user_retry: True
+    - save_valid_inputs: True
+
+  final_output:
+    - user guided through corrections
+    - valid fields retained, only invalid fields re-prompted
+    - after correction, scaffold created successfully
+    - error log available for troubleshooting
+
+assertions:
+  - name: error_detection
+    type: validation
+    description: All invalid inputs detected before MCP calls
+    check: |
+      - validate_variables called only AFTER client-side checks
+      - No scaffold_apply attempted with invalid variables
+      - All validation errors reported
+
+  - name: error_messages
+    type: content
+    description: Error messages are clear and actionable
+    check: |
+      - Each error message < 100 characters
+      - Message explains the rule/requirement
+      - Suggestion provided for how to fix it
+
+  - name: recovery_guidance
+    type: guidance
+    description: User guided to correct inputs
+    check: |
+      - suggest_fix provided for each error
+      - show_example provided where relevant
+      - allow_retry is explicitly true
+
+  - name: field_preservation
+    type: state_management
+    description: Valid fields retained during error recovery
+    check: |
+      - User doesn't need to re-enter correct fields
+      - Only invalid fields are re-prompted
+      - Previous valid inputs shown as defaults
+
+  - name: no_partial_apply
+    type: safety
+    description: Partial scaffolds not created from invalid input
+    check: |
+      - scaffold_apply never called with validation errors
+      - files never written for invalid input
+      - repository remains clean after error
+
+eval_metadata:
+  priority: high
+  difficulty: high
+  estimated_duration_seconds: 60
+  requires_user_input: true
+  requires_mcp_tools:
+    - validate_variables (should return errors)
+  expected_errors: 4
+  expected_warnings: 0
+  test_data:
+    invalid_version: "invalid-version"
+    invalid_phases: "99"
+    invalid_skill_name: "my_skill"
+    too_short_description: "A skill"

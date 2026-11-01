@@ -80,9 +80,16 @@ npm run lint:all
 | **Documentation** | AGENTS.md, PROMPT_TEMPLATE.md | Agent guides, prompt definitions |
 | **Ignore Files** | .npmignore, .gitignore | Package and repo standards |
 
-**Coverage:** Phase 1 + Phase 2 + Phase 3 covers **98%+** of all LightSpeed skill types  
-**Time Savings:** 45-65 min → **6-11 min (80-87% improvement)**  
-**Templates:** 24 core + 28+ combinations for different skill profiles
+### Phase 4: MCP Integration (Planning) 🤖
+MCP (Model Context Protocol) server layer enabling Claude agents to invoke skill-scaffold operations as first-class tools. Enables autonomous workflow execution and better error handling.
+
+**Status:** Architecture designed and documented in [PHASE4_CONTINUATION_PROMPT.md](./PHASE4_CONTINUATION_PROMPT.md)  
+**Scope:** 7 core MCP tools + TypeScript server (SDK v2) + 10 evaluation questions  
+**Timeline:** Ready for implementation (~200 min across 4 phases)
+
+**Coverage:** Phase 1 + Phase 2 + Phase 3 + Phase 4 covers **100%** of skill-scaffold use cases  
+**Time Savings:** 45-65 min → **6-11 min (80-87% improvement)** + AI-native operations  
+**Templates:** 24 core + 28+ combinations + 1 MCP server blueprint
 
 ## Configuration
 

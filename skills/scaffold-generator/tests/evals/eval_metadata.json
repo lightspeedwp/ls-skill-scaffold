@@ -1,0 +1,125 @@
+{
+  "test_suite": "scaffold-generator",
+  "version": "1.0.0",
+  "description": "Evaluation test suite for scaffold-generator skill",
+  "test_cases": [
+    {
+      "id": "case-1-conversational",
+      "name": "First-time user creating CLI skill, step-by-step guidance",
+      "file": "case-1-conversational.yaml",
+      "priority": "high",
+      "difficulty": "medium",
+      "category": "interaction_modes",
+      "tags": [
+        "conversational",
+        "cli_skill",
+        "guidance",
+        "first_time_user"
+      ],
+      "estimated_duration_seconds": 120,
+      "requires_user_input": true,
+      "mcp_tools_required": [
+        "list_templates",
+        "validate_variables",
+        "scaffold_dry_run",
+        "scaffold_apply"
+      ]
+    },
+    {
+      "id": "case-2-form-mode",
+      "name": "Experienced user with explicit variables, fast flow",
+      "file": "case-2-form-mode.yaml",
+      "priority": "high",
+      "difficulty": "low",
+      "category": "interaction_modes",
+      "tags": [
+        "form_mode",
+        "agent_skill",
+        "fast_flow",
+        "experienced_user"
+      ],
+      "estimated_duration_seconds": 10,
+      "requires_user_input": false,
+      "mcp_tools_required": [
+        "validate_variables",
+        "scaffold_apply"
+      ]
+    },
+    {
+      "id": "case-3-error-handling",
+      "name": "Invalid variables, error messages, and recovery",
+      "file": "case-3-error-handling.yaml",
+      "priority": "high",
+      "difficulty": "high",
+      "category": "error_handling",
+      "tags": [
+        "error_handling",
+        "validation",
+        "recovery",
+        "user_guidance"
+      ],
+      "estimated_duration_seconds": 60,
+      "requires_user_input": true,
+      "mcp_tools_required": [
+        "validate_variables"
+      ],
+      "test_data": {
+        "invalid_version": "invalid-version",
+        "invalid_phases": "99",
+        "invalid_skill_name": "my_skill",
+        "too_short_description": "A skill"
+      }
+    }
+  ],
+  "test_environment": {
+    "mcp_server_required": true,
+    "mcp_server_name": "skill-scaffold",
+    "mcp_tools": [
+      "list_templates",
+      "list_variants",
+      "template_render",
+      "validate_variables",
+      "scaffold_dry_run",
+      "scaffold_apply",
+      "skill_info"
+    ]
+  },
+  "evaluation_criteria": {
+    "coverage": {
+      "name": "Feature Coverage",
+      "description": "Percentage of skill features exercised",
+      "target": 85,
+      "unit": "percent"
+    },
+    "error_handling": {
+      "name": "Error Resilience",
+      "description": "Skill gracefully handles errors",
+      "target": 95,
+      "unit": "percent"
+    },
+    "performance": {
+      "name": "Response Time",
+      "description": "Average response time for operations",
+      "target": 5000,
+      "unit": "milliseconds"
+    },
+    "user_guidance": {
+      "name": "Guidance Quality",
+      "description": "Quality of conversational guidance",
+      "target": 4.5,
+      "unit": "out_of_5"
+    }
+  },
+  "success_criteria": {
+    "all_tests_pass": true,
+    "no_mcp_errors": true,
+    "coverage_threshold": 85,
+    "performance_threshold_ms": 5000
+  },
+  "metadata": {
+    "created_date": "2026-10-31",
+    "last_updated": "2026-10-31",
+    "author": "Claude Code",
+    "status": "ready_for_evaluation"
+  }
+}

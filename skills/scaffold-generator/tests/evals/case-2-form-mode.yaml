@@ -1,0 +1,109 @@
+case_id: case-2-form-mode
+title: Experienced user with explicit variables, fast flow
+description: |
+  An experienced skill developer knows exactly what they want and provides
+  all required variables upfront. The system should skip unnecessary steps
+  and apply the template immediately with validation.
+
+prompt: |
+  Generate scaffold for a "database-migration" agent skill with these variables:
+  skill_name: db-migration-tool
+  skill_description: Automated database schema migration validator
+  author: database-team
+  version: 1.0.0
+  skill_type: agent
+  template: phase-2-agent-basic
+  overwrite: true
+
+interaction_mode: form
+skill_type: agent
+phases: "2,3"
+
+expected:
+  flow_steps:
+    - type: parse_form_input
+      description: Parse structured variable input
+      success_criteria:
+        - all variables extracted correctly
+        - form-mode detected from input structure
+        - variables pre-validated before MCP calls
+
+    - type: variable_validation
+      description: Validate all variables against template schema
+      success_criteria:
+        - validate_variables called once with all variables
+        - validation passes without errors
+        - no back-and-forth with user needed
+
+    - type: quick_preview
+      description: Show minimal preview (optional in form mode)
+      success_criteria:
+        - scaffold_dry_run called with exact variables
+        - output shown briefly
+        - user can proceed directly without confirmation loop
+
+    - type: direct_apply
+      description: Apply template immediately
+      success_criteria:
+        - scaffold_apply called with overwrite=true
+        - only phases 2 and 3 applied (not phase 1)
+        - template parameter respected
+
+  final_output:
+    - skill scaffold created quickly (minimal user interaction)
+    - only requested phases applied
+    - all variables correctly substituted
+    - files overwritten where necessary
+
+assertions:
+  - name: form_detection
+    type: detection
+    description: System recognizes form input and skips dialogue
+    check: |
+      - No prompts for variables (all provided)
+      - No interactive steps
+      - Flow is linear and quick
+
+  - name: variable_completeness
+    type: validation
+    description: All required variables provided and valid
+    check: |
+      - validate_variables returns success
+      - skill_name matches "db-migration-tool"
+      - version is 1.0.0
+      - skill_type is "agent"
+
+  - name: phase_filtering
+    type: logic
+    description: Only requested phases are applied
+    check: |
+      - scaffold_apply called with phases=["2","3"]
+      - phase 1 files NOT created
+      - phases 2 and 3 files created
+
+  - name: overwrite_handling
+    type: configuration
+    description: Overwrite setting respected
+    check: |
+      - scaffold_apply called with overwrite=true
+      - existing files replaced without asking
+      - no skip errors reported
+
+  - name: performance
+    type: timing
+    description: Fast execution (minimal API calls)
+    check: |
+      - Only 2 MCP calls: validate_variables + scaffold_apply
+      - Total time < 5 seconds
+      - No dry_run call (optional in form mode)
+
+eval_metadata:
+  priority: high
+  difficulty: low
+  estimated_duration_seconds: 10
+  requires_user_input: false
+  requires_mcp_tools:
+    - validate_variables
+    - scaffold_apply
+  expected_errors: 0
+  expected_warnings: 0

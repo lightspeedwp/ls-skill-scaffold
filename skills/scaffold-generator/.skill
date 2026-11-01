@@ -1,0 +1,133 @@
+{
+  "skillId": "scaffold-generator-v1.0.0",
+  "name": "scaffold-generator",
+  "displayName": "Skill Scaffold Generator",
+  "version": "1.0.0",
+  "author": "Claude Code",
+  "description": "Generate skill scaffolds with guided setup or fast form-mode application. Integrates with MCP server for template discovery, validation, preview, and application.",
+  "keywords": [
+    "skill",
+    "scaffold",
+    "mcp",
+    "generator",
+    "template"
+  ],
+  "documentation": {
+    "readme": "README.md",
+    "setup": "SETUP.md",
+    "website": "https://github.com/Anthropic/scaffold-generator"
+  },
+  "license": "MIT",
+  "manifest": {
+    "type": "skill",
+    "phases": [
+      "1",
+      "2",
+      "3"
+    ],
+    "modes": [
+      "conversational",
+      "form"
+    ]
+  },
+  "files": {
+    "main": "scripts/scaffold_generator.py",
+    "entry_points": {
+      "scaffold_generator": "scripts/scaffold_generator.py",
+      "scaffold_discover": "scripts/scaffold_discover.py",
+      "scaffold_validate": "scripts/scaffold_validate.py",
+      "scaffold_preview": "scripts/scaffold_preview.py",
+      "scaffold_apply": "scripts/scaffold_apply.py"
+    }
+  },
+  "dependencies": {
+    "python": ">=3.8",
+    "mcp_server": "skill-scaffold@>=1.0.0",
+    "packages": [
+      "requests>=2.28.0",
+      "pydantic>=2.0.0",
+      "pyyaml>=6.0.0",
+      "click>=8.1.0",
+      "colorama>=0.4.6",
+      "mcp>=1.0.0",
+      "jsonschema>=4.18.0",
+      "marshmallow>=3.20.0"
+    ]
+  },
+  "configuration": {
+    "interaction_modes": [
+      {
+        "name": "conversational",
+        "description": "Guided step-by-step setup for first-time users",
+        "typical_use": "First time creating a skill"
+      },
+      {
+        "name": "form",
+        "description": "Fast application with explicit variables for experienced users",
+        "typical_use": "Quickly generating multiple skills"
+      }
+    ],
+    "supported_skill_types": [
+      "cli",
+      "validation",
+      "documentation",
+      "agent"
+    ],
+    "supported_phases": [
+      "1",
+      "2",
+      "3"
+    ]
+  },
+  "mcp_integration": {
+    "server": "skill-scaffold",
+    "required_tools": [
+      "list_templates",
+      "list_variants",
+      "template_render",
+      "validate_variables",
+      "scaffold_dry_run",
+      "scaffold_apply",
+      "skill_info"
+    ],
+    "min_version": "1.0.0"
+  },
+  "evaluation": {
+    "test_framework": "pytest",
+    "test_cases": [
+      "case-1-conversational",
+      "case-2-form-mode",
+      "case-3-error-handling"
+    ],
+    "coverage_target": 0.85,
+    "test_directory": "tests/evals"
+  },
+  "features": [
+    "Template discovery with filtering",
+    "Interactive variable collection",
+    "Real-time validation with suggestions",
+    "Dry-run preview before application",
+    "Error recovery guidance",
+    "Phase-based scaffold application",
+    "Overwrite protection",
+    "Comprehensive error handling",
+    "JSON output mode for automation"
+  ],
+  "performance": {
+    "template_discovery_ms": 100,
+    "validation_per_variable_ms": 50,
+    "dry_run_preview_ms": 200,
+    "template_application_ms": 500
+  },
+  "status": {
+    "development": "production",
+    "maintenance": "active",
+    "support_level": "full"
+  },
+  "metadata": {
+    "created": "2026-10-31",
+    "updated": "2026-10-31",
+    "source_repository": "https://github.com/Anthropic/scaffold-generator",
+    "stability": "stable"
+  }
+}
