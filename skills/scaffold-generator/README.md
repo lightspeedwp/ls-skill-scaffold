@@ -1,54 +1,43 @@
 # scaffold-generator
 
-**Generate skill files interactively from templates using the skill-scaffold MCP server.**
+**Generate complete skill boilerplate from templates in seconds using the skill-scaffold MCP server.**
 
-Create new skills in seconds with guided variable input, real-time validation, and preview-before-write workflow.
+Guides new users step-by-step or runs fast for power users. Always previews before writing. Real-time validation, smart defaults, zero surprises.
 
-**Status:** Phase 4.4 - Under Development | **Version:** 0.1.0 | **License:** MIT
+**Status:** Phase 4.4 | **Version:** 0.1.0 | **License:** MIT
 
 ---
 
-## 🚀 Quick Start (2 minutes)
+## Quick Start
 
-### For First-Time Users
-Tell the skill what you want to create:
+### 👤 First-Time User
 ```
 "Help me create my first CLI skill"
 ```
-Claude will guide you step-by-step, asking for variables and confirming before writing.
-
-### For Experienced Users
-Provide all details upfront:
+↓ Claude guides you through skill type, phases, variables, then shows a preview ↓
 ```
-"Generate a cli skill: repo_name=my-cli, author=Claude, phases=1-2"
+✅ Skill scaffold created at /your/path
 ```
-The skill validates and creates files instantly.
 
-**Result:** Ready-to-use skill file structure with templates, tests, and docs.
+### ⚡ Experienced User
+```
+"Generate validation skill: repo_name=my-validator, author=Ash, phases=1-2"
+```
+↓ Validates all variables, shows preview ↓
+```
+✅ Skill scaffold created instantly
+```
 
 ---
 
-## What This Skill Does
+## What It Does
 
-| Feature | Benefit |
-|---------|---------|
-| 🎯 **Interactive Generation** | Creates complete skill file structure from templates |
-| 🔍 **Smart Mode Selection** | Conversational for learners, form-based for power users |
-| ✅ **Variable Validation** | Catches errors in real-time with helpful suggestions |
-| 👁️ **Preview-First Workflow** | Always shows dry-run before writing to disk |
-| 📊 **Coverage Reporting** | Shows what templates apply to your skill type |
-| 🔗 **MCP-Powered** | Uses skill-scaffold MCP server for templates and schemas |
-
----
-
-## How It Works
-
-```
-1. You describe the skill → 2. Select templates → 3. Enter variables →
-4. Preview files → 5. Confirm → 6. Files written to disk
-```
-
-All steps include validation, suggestions, and error handling.
+- **Smart Interaction** — Conversational for learners, fast form-mode for experts
+- **Real-Time Validation** — Catches errors immediately, suggests fixes
+- **Preview-First** — Shows exactly what will be created before any files are written
+- **Template-Powered** — Uses skill-scaffold MCP server for templates, schemas, and metadata
+- **Coverage Reporting** — Shows which templates apply to your skill type
+- **Safe Defaults** — Suggests sensible starting values, explains constraints
 
 ---
 
@@ -68,19 +57,19 @@ Start here based on what you need:
 
 ---
 
-## The Architecture: Sub-Skills
+## Sub-Skills (For Advanced Use)
 
-This skill is built from 5 focused, reusable sub-skills:
+This skill is built from 5 reusable Python modules that can run independently:
 
-| Skill | Purpose | Use When |
-|-------|---------|----------|
-| **scaffold-discover** | List templates and metadata | "What templates are available?" |
-| **scaffold-validate** | Validate variables | "Are these variables correct?" |
-| **scaffold-preview** | Show dry-run preview | "Show me what this will create" |
-| **scaffold-apply** | Write files to disk | "Generate the skill files" |
-| **scaffold-generator** | Orchestrate full workflow | "Create my skill" |
+| Module | Purpose |
+|--------|---------|
+| `scaffold_discover` | List available templates, filter by type/phase |
+| `scaffold_validate` | Validate variables against template schema |
+| `scaffold_preview` | Show dry-run (proposed files, paths, substitutions) |
+| `scaffold_apply` | Write files to disk with overwrite protection |
+| `scaffold_generator` | Orchestrate full workflow (conversational or form mode) |
 
-Each can be used independently. See [docs/architecture.md](docs/architecture.md) for details.
+**Most users use the main `scaffold-generator` skill.** Use sub-skills if you need fine-grained control over specific steps. See [docs/architecture.md](docs/architecture.md) for API details.
 
 ---
 
@@ -92,23 +81,25 @@ Each can be used independently. See [docs/architecture.md](docs/architecture.md)
 
 ---
 
-## Getting Help
+## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| **MCP server won't connect** | See [docs/troubleshooting.md#mcp-connection](docs/troubleshooting.md#mcp-connection) |
-| **Variable validation fails** | Check [docs/api.md#validate-variables](docs/api.md#validate-variables) |
-| **Files not written** | Review [docs/troubleshooting.md#file-writing](docs/troubleshooting.md#file-writing) |
+**MCP server won't connect?** → Start it with: `npx @modelcontextprotocol/inspector node /path/to/server/dist/index.js`
+
+**Variable validation failed?** → Check the error message. Common issues: repo_name must be lowercase with hyphens, version must be semantic (1.0.0).
+
+**Files not written?** → Check file permissions on target directory. Use `overwrite=false` by default (safe, won't overwrite existing files).
+
+See [SKILL.md Troubleshooting](SKILL.md#troubleshooting) for more.
 
 ---
 
 ## For Developers
 
-- **Development setup**: [CLAUDE.md](CLAUDE.md)
-- **Contributing**: See [CLAUDE.md](CLAUDE.md)
-- **Version history**: [CHANGELOG.md](CHANGELOG.md)
-- **Test cases**: [tests/README.md](tests/README.md)
+- **Development**: [CLAUDE.md](CLAUDE.md)
+- **Tests**: [tests/README.md](tests/README.md)
 - **Helper scripts**: [scripts/README.md](scripts/README.md)
+- **Architecture**: [docs/architecture.md](docs/architecture.md)
+- **API Reference**: [docs/api.md](docs/api.md)
 
 ---
 

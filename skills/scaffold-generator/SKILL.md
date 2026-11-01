@@ -1,10 +1,10 @@
 ---
 name: scaffold-generator
 description: |
-  Generate new skill files from templates using the skill-scaffold MCP server. Use this whenever a user wants to create, bootstrap, or generate skill files for a new skill type (cli, validation, documentation, or agent). Intelligently chooses between guided step-by-step flow (for new users or exploratory requests) and fast form-based flow (for experienced users making quick decisions). Provides variable input with defaults, real-time validation, and a preview-before-write workflow. Works with Claude agents to automate skill generation and with humans learning to create skills. If the user hasn't explicitly asked for skill generation but mentions "creating a new skill", "bootstrapping templates", "generating skill files", or "building a skill structure", proactively offer this skill.
+  Generate complete skill boilerplate from templates in seconds. Use this whenever someone wants to create a new skill (CLI, validation, documentation, or agent type), bootstrap a skill repository, generate missing skill files, or build skill scaffolding — whether they explicitly ask for "skill generation" or use related phrases like "create a new skill", "set up a skill structure", "bootstrap templates", "I need a skill that does X", or "help me build my first skill". This skill intelligently adapts: guides step-by-step for new users learning to create skills, runs fast form-mode for power users who provide all variables upfront. Always preview before writing, validate variables in real-time, suggest sensible defaults. Proactively offer this skill whenever skill creation is mentioned or implied (e.g., "I want to build a skill for...", "We need a custom skill to...", "Create a scaffolding for a new tool").
 compatibility: |
-  Requires: skill-scaffold MCP server running with templates directory configured
-  MCP tools used: scaffold_apply, scaffold_dry_run, template_render, validate_variables, list_templates, skill_info
+  Requires: skill-scaffold MCP server with templates directory and Mustache templating support
+  MCP tools: list_templates, validate_variables, template_render, scaffold_dry_run, scaffold_apply, skill_info
 ---
 
 # Scaffold Generator
@@ -13,23 +13,31 @@ Generate skill files interactively using the skill-scaffold MCP server and Musta
 
 ## Overview
 
-This skill wraps the skill-scaffold MCP server to provide an **interactive, guided experience** for generating skill files. It intelligently handles:
+Generate complete, production-ready skill boilerplate in minutes using the skill-scaffold MCP server. This skill handles the entire workflow:
 
-- **Interaction Mode Selection**: Chooses between conversational (step-by-step guidance) and form-based (fast input) flows
-- **Template Discovery**: Lists available templates from the MCP server, filtered by skill type and phase
-- **Variable Management**: Suggests defaults, validates in real-time, catches errors early
-- **Preview Workflow**: Always shows a dry-run first (proposed files, paths, variable substitutions) before writing
-- **Safe Generation**: Confirms before overwriting, shows coverage percentage, displays file structure
+1. **Smart Mode Selection** — Guides newcomers step-by-step, gives power users a fast form-based flow
+2. **Template Discovery** — Lists available templates (CLI, validation, documentation, agent), filtered by type and phase
+3. **Real-Time Validation** — Validates each variable as you enter it, suggests fixes, prevents errors
+4. **Dry-Run Preview** — Always shows exactly what will be created before writing a single file
+5. **Safe File Writing** — Confirms before overwriting, reports coverage %, displays file manifest
+
+**Bottom line:** Say what skill you want to build. This skill figures out what templates apply, asks for the details you need, shows you a preview, and writes the files — or guides you through the whole process if you're new to skill creation.
 
 ## When to Use This Skill
 
-Use **scaffold-generator** when:
-- A user wants to **create a new skill** (cli, validation, documentation, or agent type)
-- A user needs to **generate missing skill files** from templates
-- A user asks to **bootstrap a skill repository** with structure and scaffolding
-- A user is **learning to create skills** and needs guidance
-- You're **automating skill generation** in an agent workflow
-- A user mentions "creating templates", "generating skill structure", or "bootstrapping files" in the context of skill-scaffold
+**Trigger this skill when the user:**
+- Wants to **create a new skill** (CLI tool, validation engine, documentation helper, or agent)
+- Asks **"How do I build my first skill?"** or **"Help me create a skill that..."**
+- Needs to **bootstrap a skill repository** or **generate a skill scaffold**
+- Mentions **generating skill files**, **setting up skill structure**, or **building a skill template**
+- Is **starting a new skill project** and wants a guided experience
+- Has **all the details ready** and wants to generate files instantly (form mode)
+- Uses related language: "create skill boilerplate", "generate a skill from templates", "scaffold a new tool", "I need to build a custom skill"
+
+**Also use it proactively:**
+- When a user describes what they want to build and it sounds like a skill
+- When they ask for automation or custom functionality (could be a skill)
+- When they mention "I need a tool that..." and the tool could be a skill
 
 ## Interaction Model
 
@@ -265,119 +273,96 @@ If user provides variables beyond required set, pass them through (optional vari
 
 ## Examples
 
-### Example 1: New User, Conversational Mode
+### Example 1: New User (Conversational Mode)
 ```
-User: "I want to create my first skill, a CLI tool"
-Claude: I'll guide you step-by-step. First, what type of CLI tool?
-  - CLI: command-line interface tool
-  - Validation: data validation rules
-  - Documentation: docs/reference helper
-  - Agent: AI agent workflow
+User: "Help me create my first skill, it's a CLI tool"
 
-User: CLI please
+Claude: I'll guide you step-by-step!
 
-Claude: Great! Which phases? (1=foundation, 2=core, 3=polish)
-  Option: phases 1-2 to start, add 3 later
+1. Skill type? (CLI / Validation / Documentation / Agent)
+   → User: CLI
 
-User: All of them
+2. Which phases? (1=foundation, 2=core, 3=polish, or all)
+   → User: All
 
-Claude: Perfect. I need a few details:
-  - repo_name: What should the repo be called? (lowercase, hyphens ok)
-  User: my-awesome-cli
+3. Repository name? (lowercase, hyphens ok)
+   → User: my-awesome-cli
 
-  - author: Who's the author?
-  User: Claude
+4. Author name?
+   → User: Claude
 
-  - version: Starting version?
-  User: [uses default 1.0.0]
-
-Claude: [Shows dry-run]
+Claude: Here's what we'll create (dry-run preview):
+  ✓ SKILL.md
+  ✓ scripts/generate.py
+  ✓ tests/test_cli.py
+  ✓ docs/usage.md
+  [4 files, 90% coverage]
 
 User: Looks good!
 
-Claude: [Applies templates, writes files]
+Claude: ✅ Files written to /path/to/my-awesome-cli
 ```
 
-### Example 2: Experienced User, Form Mode
+### Example 2: Experienced User (Form Mode)
 ```
-User: "Generate a validation skill for my-repo, phases 1-2, 
-       repo_name=my-validator, author=Ash"
+User: "Generate a validation skill: repo_name=my-validator, 
+       author=Ash, phases=1-2"
 
-Claude: I'll use form mode for speed.
-  [Collects all variables]
-  [Validates batch]
-  [Shows dry-run]
-  
-User: Write it
+Claude: [Validates all variables at once]
+        [Shows dry-run]
+        Ready? → User: Yes
 
-Claude: [Applies templates]
+Claude: ✅ Skill generated with 3 files
 ```
 
 ---
 
-## Key Patterns & Mental Model
+## Why This Design Works
 
-### Why Preview-First?
-Showing a dry-run before writing prevents:
-- Files written to wrong location
-- Variable substitutions breaking templates
-- Accidental overwrites
-- Users discovering mistakes after the fact
+**Preview-First** — Shows exactly what will be created before any files hit disk. Prevents wrong locations, broken substitutions, accidental overwrites, and post-generation surprises.
 
-### Why Suggest Defaults?
-Defaults from template metadata make the experience:
-- Faster (fewer required inputs)
-- Safer (sensible starting points)
-- Educational (user sees what's typical)
+**Real-Time Validation** — Errors caught immediately with context-aware suggestions. Faster than the back-and-forth of "oops, try again."
 
-### Why Real-Time Validation?
-Validating as user types:
-- Catches errors immediately
-- Provides context-aware help
-- Reduces back-and-forth
-- Feels responsive
+**Smart Defaults** — Suggested values from template metadata make generation faster, safer, and educational (users see what's typical).
 
-### Why Hybrid Mode?
-Different users have different needs:
-- Newcomers need guidance
-- Power users need speed
-- Same skill serves both
+**Dual Modes** — Conversational mode for learners, form mode for power users. One skill serves both without compromises.
 
 ---
 
-## Integration Notes
+## Integration & Usage
 
-### MCP Server Dependency
-This skill requires the skill-scaffold MCP server to be running. The server provides:
-- `list_templates` — discover available templates
-- `validate_variables` — check variable schemas
-- `template_render` — render individual templates (for preview)
+### MCP Server Requirements
+This skill requires the skill-scaffold MCP server running with these tools:
+- `list_templates` — discover templates
+- `validate_variables` — validate variables against schema
+- `template_render` — render individual templates
 - `scaffold_dry_run` — preview all files before writing
 - `scaffold_apply` — write files to disk
 - `skill_info` — get metadata (coverage %, template count)
 
-### For Claude Agents
-Agents can use this skill to:
-- Automate skill generation in workflows
-- Generate skill boilerplate from decisions
-- Create multiple skill variants
-- Integrate into CI/CD pipelines
+**Start the server:** `npx @modelcontextprotocol/inspector node /path/to/server/dist/index.js`
 
-Pass all variables at once for form mode:
+### For Agents (Automation)
+Pass all variables upfront for instant form-mode generation:
 ```
 Generate a cli skill:
   repo_name: my-service
   author: Agent
   phases: 1
+  variables:
+    description: "A service that validates data"
 ```
 
-### For Human Users
-Humans use conversational mode for discovery and guidance:
+The skill will validate all variables, show the dry-run, and apply templates.
+
+### For Humans (Learning/Discovery)
+Start with a description of what you want to build:
 ```
-Help me create my first skill
+Help me create my first skill. It should be a CLI tool
+for validating JSON schemas.
 ```
 
-Claude chooses mode automatically based on context.
+Claude will guide you through each step, validate as you go, and confirm before writing.
 
 ---
 
