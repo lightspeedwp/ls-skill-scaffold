@@ -306,7 +306,7 @@ export class ScaffoldClient {
    * - Prevents writes to scaffold's own config and templates directories
    * - Atomic exclusive create when overwrite not allowed
    */
-  writeFile(targetPath: string, content: string, allowOverwrite: boolean = false): void {
+  writeFile(targetPath: string, content: string, _allowOverwrite: boolean = false): void {
     const fullPath = this.resolveSafePath(targetPath);
 
     // Ensure parent directory exists
