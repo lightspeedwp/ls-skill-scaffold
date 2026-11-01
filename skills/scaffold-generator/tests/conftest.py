@@ -20,25 +20,29 @@ class MockMCPClient:
         self.calls = []
         self.responses = {}
 
-    def call_tool(self, tool_name: str, **kwargs) -> Dict[str, Any]:
-        """Mock MCP tool call."""
-        self.calls.append({"tool": tool_name, "args": kwargs})
-        
+    def call_tool(self, tool_name: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Mock MCP tool call - takes tool name and params dict."""
+        params = params or {}
+        self.calls.append({"tool": tool_name, "args": params})
+
         if tool_name in self.responses:
             response = self.responses[tool_name]
             if callable(response):
-                return response(**kwargs)
+                return response(**params)
             return response
-        
-        return self._default_response(tool_name, kwargs)
 
-    def _default_response(self, tool_name: str, kwargs: Dict) -> Dict[str, Any]:
+        return self._default_response(tool_name, params)
+
+    def _default_response(self, tool_name: str, params: Dict) -> Dict[str, Any]:
         """Provide default responses for common MCP tools."""
         if tool_name == "list_templates":
             return {
+                "success": True,
                 "templates": [
-                    {"name": "cli_basic", "target": "SKILL.md", "phase": 1, "skill_type": "cli"},
-                    {"name": "cli_scripts", "target": "scripts/main.py", "phase": 2, "skill_type": "cli"},
+                    {"name": "cli_basic", "path": "/t1", "skill_type": "cli", "description": "CLI",
+                     "phases": ["1", "2"], "variables": {}},
+                    {"name": "cli_scripts", "path": "/t2", "skill_type": "cli", "description": "Scripts",
+                     "phases": ["2", "3"], "variables": {}},
                 ],
                 "total": 2,
             }
@@ -55,7 +59,7 @@ class MockMCPClient:
         elif tool_name == "scaffold_apply":
             return {"success": True, "filesWritten": 1, "coverage": 95, "summary": "Applied 1 template"}
         elif tool_name == "skill_info":
-            return {"name": "skill-scaffold", "version": "1.0.0", "templates": {"total": 24}}
+            return {"success": True, "name": "skill-scaffold", "version": "1.0.0", "templates": {"total": 24}}
         return {"success": True}
 
     def set_response(self, tool_name: str, response: Dict[str, Any]):
