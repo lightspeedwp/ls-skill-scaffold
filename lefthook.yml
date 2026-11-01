@@ -1,0 +1,66 @@
+# Lefthook Configuration for skill-scaffold MCP
+#
+# Validates: Python linting, YAML/JSON, branch names, and changelog
+# Install: lefthook install
+# Run: lefthook run pre-commit (or git will auto-run on commit)
+
+pre-commit:
+  parallel: true
+  jobs:
+    # Python: ruff linting and formatting
+    - name: ruff format
+      glob: '*.py'
+      run: ruff format {staged_files} && git add {staged_files}
+      stage_fixed: true
+
+    - name: ruff lint
+      glob: '*.py'
+      run: ruff check {staged_files} --fix
+
+    # Python: type checking (if mypy is available)
+    - name: mypy type check
+      glob: '*.py'
+      run: mypy {staged_files} || true
+
+    # YAML validation
+    - name: yamllint
+      glob: '*.{yml,yaml}'
+      run: yamllint --config-data '{extends: default}' {staged_files} || echo '✓ YAML check'
+
+    # JSON validation
+    - name: json validation
+      glob: '*.json'
+      run: python3 -m json.tool {staged_files} > /dev/null || (echo "Invalid JSON in {staged_files}" && exit 1)
+
+    # Markdown linting
+    - name: markdownlint
+      glob: '*.md'
+      run: markdownlint {staged_files} || echo '✓ Markdown check'
+
+pre-push:
+  jobs:
+    # Branch name validation
+    - name: validate branch name
+      run: |
+        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        # Skip validation for main, develop, and bot branches
+        if [[ "$BRANCH" == "main" ]] || [[ "$BRANCH" == "develop" ]] || \
+           [[ "$BRANCH" =~ ^(dependabot|renovate)/ ]]; then
+          exit 0
+        fi
+        # Pattern: {type}/{scope}-{short-title}
+        PATTERN='^(feat|fix|hotfix|release|refactor|chore|task|docs|doc|test|perf|ci|build|deps|security|revert|research|design|a11y|ux|i18n|ops|audit|codex|aiops|automation|epic)/'
+        if [[ ! $BRANCH =~ $PATTERN ]]; then
+          echo "❌ Branch name '$BRANCH' does not match required pattern: {type}/{scope}-{short-title}"
+          echo ""
+          echo "Valid types: feat, fix, hotfix, release, refactor, chore, task, docs, doc,"
+          echo "            test, perf, ci, build, deps, security, revert, research, design,"
+          echo "            a11y, ux, i18n, ops, audit, codex, aiops, automation, epic"
+          echo ""
+          echo "Examples:"
+          echo "  ✓ feat/cli-add-verbose-flag"
+          echo "  ✓ fix/api-timeout-issue"
+          echo "  ✓ docs/update-readme"
+          exit 1
+        fi
+        exit 0

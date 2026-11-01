@@ -1,0 +1,715 @@
+# 🔒 LOCKED — Org-wide Canonical Labels (Issues, PRs, Discussions)
+# ⚠️  This file is FINAL and manually curated by @ashley. Do NOT edit without explicit approval.
+#
+# All labeling, status, type, and standardization is handled by the unified labeling agent and workflow.
+# This file is the single source of truth for all automation and label configuration.
+#
+# TO REQUEST CHANGES: Open a GitHub issue with [LABEL-UPDATE-REQUEST] in the title and describe the change needed.
+
+# --- Status ---
+
+- name: status:needs-planning
+  color: BFD4F2
+  description: 'Awaiting planning / scoping'
+
+- name: status:needs-triage
+  color: BFD4F2
+  description: 'Needs triage'
+
+- name: status:ready
+  color: 0E8A16
+  description: 'Groomed and ready to start'
+
+- name: status:in-progress
+  color: 1D76DB
+  description: 'Work in progress'
+
+- name: status:on-hold
+  color: F9D0C4
+  description: 'Work on hold'
+
+- name: status:needs-design
+  color: C5DEF5
+  description: 'Awaiting design input'
+
+- name: status:needs-design-review
+  color: D4C5F9
+  description: 'Awaiting design review'
+
+- name: status:needs-figma-update
+  color: C5DEF5
+  description: 'Existing Figma design needs updating'
+
+- name: status:needs-dev
+  color: C5DEF5
+  description: 'Awaiting engineering implementation'
+
+- name: status:needs-review
+  color: BFD4F2
+  description: 'Awaiting code review'
+
+- name: status:needs-qa
+  color: FBCA04
+  description: 'Quality assurance required'
+
+- name: status:needs-testing
+  color: FEF2C0
+  description: 'Testing needed (manual/automated)'
+
+- name: status:needs-documentation
+  color: BFD4F2
+  description: 'Needs documentation update'
+
+- name: status:in-discussion
+  color: BFD4F2
+  description: 'Needs alignment/decision'
+
+- name: status:needs-more-info
+  color: BFD4F2
+  description: 'Missing details to proceed'
+
+- name: status:blocked
+  color: E99695
+  description: 'Blocked by dependency'
+
+- name: status:duplicate
+  color: E99695
+  description: 'Duplicate of another issue'
+
+- name: status:wontfix
+  color: E1E4E8
+  description: 'Not planned to address'
+
+- name: status:done
+  color: 0E8A16
+  description: 'Completed'
+
+- name: status:completed
+  color: ededed
+  description: ''
+  # Overlaps status:done in meaning; kept as a separate declaration because
+  # it is already applied to real issues (e.g. bulk-label-issues.sh) and a
+  # rename would require re-labeling those issues, not just this file.
+
+- name: status:needs-audit
+  color: 7E6007
+  description: 'Audit needed (security/compliance/quality)'
+
+# --- Priority ---
+
+- name: priority:critical
+  color: B60205
+  description: 'Production/launch-blocking'
+
+- name: priority:important
+  color: D93F0B
+  description: 'Must-do high priority'
+
+- name: priority:normal
+  color: 0052CC
+  description: 'Default priority'
+
+- name: priority:minor
+  color: C2E0C6
+  description: 'Low priority / nice to have'
+
+- name: priority:high
+  color: ededed
+  description: ''
+  # Overlaps priority:important; kept as a separate declaration for the same
+  # reason as status:completed above — already applied to real issues.
+
+- name: priority:low
+  color: ededed
+  description: ''
+  # Overlaps priority:minor; see priority:high above.
+
+# --- Types (Issue Types) ---
+
+- name: type:task
+  color: 0969DA
+  description: 'Task or to-do'
+
+- name: type:bug
+  color: B91C1C
+  description: 'Bug or defect'
+
+- name: type:feature
+  color: 2A7A3B
+  description: 'Feature or enhancement'
+
+- name: type:design
+  color: 8957E5
+  description: 'Design work'
+
+- name: type:epic
+  color: 3467D3
+  description: 'Large multi-scope initiative'
+
+- name: type:improve
+  color: 2A7A3B
+  description: 'Improvement to existing behaviour/UX'
+
+- name: type:chore
+  color: 57606A
+  description: 'Routine task or maintenance update'
+
+- name: type:ci
+  color: C5DEF5
+  description: 'CI'
+
+- name: type:automation
+  color: D0D7DE
+  description: 'Automation tasks or scripts'
+
+- name: type:test
+  color: D29922
+  description: 'Test coverage'
+
+- name: type:decision
+  color: 3467D3
+  description: 'Decision record'
+
+- name: type:performance
+  color: F2D06D
+  description: 'Performance improvement'
+
+- name: type:a11y
+  color: 8957E5
+  description: 'Accessibility'
+
+- name: type:security
+  color: CF222E
+  description: 'Security issue'
+
+- name: type:compat
+  color: 0D7F6F
+  description: 'Compatibility'
+
+- name: type:refactor
+  color: B1BAC4
+  description: 'Refactor or internal change'
+
+- name: type:release
+  color: 1A7F37
+  description: 'Release'
+
+- name: type:dependency
+  color: 007580
+  description: 'Dependency update or management'
+
+- name: type:docs
+  color: 3467D3
+  description: 'Documentation'
+
+- name: type:research
+  color: C5DEF5
+  description: 'Research / investigation'
+
+- name: type:audit
+  color: D29922
+  description: 'Audit'
+
+- name: type:review
+  color: 0969DA
+  description: 'Code or design review task'
+
+- name: type:aiops
+  color: B1BAC4
+  description: 'AI Ops'
+
+- name: type:content-modelling
+  color: B4A7E8
+  description: 'Content Modelling'
+
+- name: type:build
+  color: C5DEF5
+  description: 'Build tasks or processes'
+
+# --- Meta / housekeeping ---
+
+- name: meta:needs-changelog
+  color: E1E4E8
+  description: 'Requires a changelog entry before merge'
+
+- name: meta:no-changelog
+  color: E1E4E8
+  description: 'No changelog needed'
+
+- name: meta:has-pr
+  color: E1E4E8
+  description: 'Issue has an open linked PR'
+
+- name: meta:no-issue-activity
+  color: E1E4E8
+  description: 'No recent issue activity'
+
+- name: meta:no-pr-activity
+  color: E1E4E8
+  description: 'No recent PR activity'
+
+- name: meta:stale
+  color: 9198A1
+  description: 'Marked as stale for review'
+
+# --- Release scope ---
+
+- name: release:patch
+  color: 3FB950
+  description: 'Patch release'
+
+- name: release:minor
+  color: 58A6FF
+  description: 'Minor release'
+
+- name: release:major
+  color: F85149
+  description: 'Major release'
+
+- name: release:hotfix
+  color: D29922
+  description: 'Urgent hotfix outside normal cadence'
+
+# --- Area (broader surfaces) ---
+
+- name: area:core
+  color: C5DEF5
+  description: 'Core / shared infrastructure'
+
+- name: area:governance
+  color: ededed
+  description: ''
+
+- name: area:qa
+  color: C5DEF5
+  description: 'QA & testing (task-level)'
+
+- name: area:operations
+  color: C5DEF5
+  description: 'Operations & infra (task-level)'
+
+- name: area:block-editor
+  color: C5DEF5
+  description: 'Block editor'
+
+- name: area:theme
+  color: C5DEF5
+  description: 'Theme & styles'
+
+- name: area:documentation
+  color: C5DEF5
+  description: 'Docs & guides'
+
+- name: area:tests
+  color: D4C5F9
+  description: 'Test suites & harnesses'
+
+- name: area:scripts
+  color: C5DEF5
+  description: 'Scripts & tooling'
+
+- name: area:assets
+  color: C5DEF5
+  description: 'Assets (images, fonts, static files)'
+
+- name: area:woocommerce
+  color: D4C5F9
+  description: 'WooCommerce'
+
+- name: area:content
+  color: C5DEF5
+  description: 'Content and copy'
+
+- name: area:design-system
+  color: C5DEF5
+  description: 'Design system and tokens'
+
+- name: area:navigation
+  color: C5DEF5
+  description: 'Navigation & menus'
+
+- name: area:forms
+  color: C5DEF5
+  description: 'Forms and form flows'
+
+- name: area:plugins
+  color: C5DEF5
+  description: 'Plugin configuration / logic'
+
+- name: area:search
+  color: C5DEF5
+  description: 'Search and filtering'
+
+- name: area:seo
+  color: C2E0C6
+  description: 'Technical SEO (meta, schema, sitemaps)'
+
+- name: area:analytics
+  color: C2E0C6
+  description: 'Analytics & tracking'
+
+- name: area:infrastructure
+  color: 006B75
+  description: 'Infrastructure / hosting / platform'
+
+- name: area:i18n
+  color: C5DEF5
+  description: 'Internationalisation'
+
+- name: area:ci
+  color: BFD4F2
+  description: 'Build and CI pipelines'
+
+- name: area:deployment
+  color: 006B75
+  description: 'Deploy/release operations'
+
+- name: area:dependencies
+  color: F9D0C4
+  description: 'Composer/npm dependency work'
+
+- name: area:integration
+  color: D93F0B
+  description: '3rd-party integrations / ecosystem'
+
+- name: area:automation
+  color: 0F448A
+  description: 'Automation and scripting'
+
+- name: area:testing
+  color: 4D1A93
+  description: 'Testing and QA'
+
+- name: area:performance
+  color: 7E6007
+  description: 'Performance optimization'
+
+- name: area:a11y
+  color: 4D1A93
+  description: 'Accessibility (WCAG compliance)'
+
+- name: area:security
+  color: 810E18
+  description: 'Security concerns and fixes'
+
+- name: area:compatibility
+  color: 883D07
+  description: 'Compatibility issues'
+
+- name: area:release
+  color: 1D7232
+  description: 'Release management'
+
+- name: area:maintenance
+  color: 4E575F
+  description: 'Maintenance and housekeeping'
+
+- name: area:ai
+  color: 0F448A
+  description: 'AI operations and AI-related work'
+
+- name: area:agents
+  color: 0F448A
+  description: 'AI agents and agent-related work'
+
+- name: area:skills
+  color: 0F448A
+  description: 'AI skills and skill-related work'
+
+- name: area:instructions
+  color: 0F448A
+  description: 'AI instructions and instruction-related work'
+
+- name: area:prompts
+  color: 0F448A
+  description: 'AI prompts and prompt-related work'
+
+- name: area:playwright
+  color: 4D1A93
+  description: 'Playwright testing and E2E automation'
+
+- name: area:jest
+  color: 4D1A93
+  description: 'Jest unit and integration testing'
+
+- name: area:phpunit
+  color: 4D1A93
+  description: 'PHPUnit testing framework'
+
+- name: area:pagespeed
+  color: 7E6007
+  description: 'PageSpeed Insights, performance monitoring, and metrics'
+
+# --- Components (comp:*) ---
+
+- name: comp:block-editor
+  color: C5DEF5
+  description: 'Block/site editor work'
+
+- name: comp:block-inserter
+  color: C5DEF5
+  description: 'Inserter UI/behaviour'
+
+- name: comp:block-variations
+  color: C5DEF5
+  description: 'Block variations'
+
+- name: comp:block-supports
+  color: C5DEF5
+  description: 'Block supports'
+
+- name: comp:block-locking
+  color: C5DEF5
+  description: 'Block locking'
+
+- name: comp:block-bindings
+  color: C5DEF5
+  description: 'Block bindings'
+
+- name: comp:block-templates
+  color: C5DEF5
+  description: 'Block templates / template editor'
+
+- name: comp:block-patterns
+  color: C5DEF5
+  description: 'Patterns library/registration'
+
+- name: comp:template-parts
+  color: C5DEF5
+  description: 'Template parts (header/footer/loops)'
+
+- name: comp:block-json
+  color: C5DEF5
+  description: 'Block metadata (block.json)'
+
+- name: comp:theme-json
+  color: C5DEF5
+  description: 'Tokens, presets, settings (theme.json)'
+
+- name: comp:wp-admin
+  color: C5DEF5
+  description: 'WP Admin screens'
+
+- name: comp:settings
+  color: C5DEF5
+  description: 'Global/settings UX'
+
+- name: comp:post-settings
+  color: C5DEF5
+  description: 'Post editor settings panel'
+
+- name: comp:style-variations
+  color: C5DEF5
+  description: 'JSON style variations'
+
+- name: comp:block-styles
+  color: C5DEF5
+  description: 'Block styles registered via JSON'
+
+- name: comp:color-palette
+  color: C5DEF5
+  description: 'Palette tokens and usage'
+
+- name: comp:typography
+  color: C5DEF5
+  description: 'Type scale and typography tokens'
+
+- name: comp:section-styles
+  color: C5DEF5
+  description: 'Section/background styles'
+
+- name: comp:spacing
+  color: C5DEF5
+  description: 'Spacing tokens and layout gaps'
+
+# --- Languages / formats ---
+
+- name: lang:php
+  color: C5DEF5
+  description: 'PHP'
+
+- name: lang:js
+  color: C5DEF5
+  description: 'JavaScript/TypeScript'
+
+- name: lang:css
+  color: C5DEF5
+  description: 'Stylesheets (CSS/Sass/etc.)'
+
+- name: lang:html
+  color: C5DEF5
+  description: 'Markup (HTML)'
+
+- name: lang:md
+  color: C5DEF5
+  description: 'Markdown content/docs'
+
+- name: lang:json
+  color: C5DEF5
+  description: 'JSON config/content'
+
+- name: lang:yaml
+  color: C5DEF5
+  description: 'YAML config'
+
+# --- Environments ---
+
+- name: env:prototype
+  color: E1E4E8
+  description: 'Prototype/sandbox'
+
+- name: env:staging
+  color: BFD4F2
+  description: 'Staging/UAT'
+
+- name: env:live
+  color: 0E8A16
+  description: 'Live/production'
+
+# --- Compatibility matrix ---
+
+- name: compat:wordpress
+  color: D93F0B
+  description: 'WordPress core/Gutenberg compatibility'
+
+- name: compat:php
+  color: D93F0B
+  description: 'PHP version compatibility'
+
+- name: compat:woocommerce
+  color: D93F0B
+  description: 'WooCommerce versions'
+
+- name: compat:gutenberg
+  color: D93F0B
+  description: 'Gutenberg package compatibility'
+
+- name: compat:rtl
+  color: D93F0B
+  description: 'RTL languages support'
+
+- name: compat:multisite
+  color: F9D0C4
+  description: 'Multisite/network considerations'
+
+# --- Content types ---
+
+- name: cpt:posts
+  color: C5DEF5
+  description: 'WordPress Posts'
+
+- name: cpt:pages
+  color: C5DEF5
+  description: 'WordPress Pages'
+
+# --- AI Ops ---
+
+- name: ai-ops:instructions
+  color: 0052CC
+  description: 'AI instruction docs'
+
+- name: ai-ops:chat-modes
+  color: 0052CC
+  description: 'Prompt sets / chat modes'
+
+- name: ai-ops:agents
+  color: 0052CC
+  description: 'AI agent definitions'
+
+- name: ai-ops:prompts
+  color: 0052CC
+  description: 'Reusable prompts'
+
+- name: ai-ops:datasets
+  color: BFD4F2
+  description: 'Training/evaluation datasets'
+
+- name: ai-ops:evaluations
+  color: BFD4F2
+  description: 'Evaluation results'
+
+- name: ai-ops:tools
+  color: BFD4F2
+  description: 'Tool/plugin manifests'
+
+# --- Contributor labels ---
+
+- name: contrib:good-first-issue
+  color: D4C5F9
+  description: 'Good for new contributors'
+
+- name: contrib:help-wanted
+  color: C2E0C6
+  description: 'Help wanted'
+
+- name: contrib:discussion
+  color: C2E0C6
+  description: 'Contributor/community discussion'
+
+# --- Discussions (GitHub Discussions categories) ---
+
+- name: discussion:announcement
+  color: FBCA04
+  description: 'Official announcements'
+
+- name: discussion:showcase
+  color: 0E8A16
+  description: 'Show & Tell'
+
+- name: discussion:community
+  color: 6f42c1
+  description: 'Community/general'
+
+- name: discussion:feedback
+  color: 1d76db
+  description: 'Feedback/suggestions'
+
+- name: discussion:support
+  color: d73a4a
+  description: 'Support/troubleshooting'
+
+- name: discussion:sponsorship
+  color: f9d0c4
+  description: 'Sponsorship/funding'
+
+- name: discussion:partnership
+  color: bfd4f2
+  description: 'Partnership/collaboration'
+
+# --- Openspec Status ---
+
+- name: openspec:discovery
+  color: FBCA04
+  description: 'Openspec discovery phase - component identified and audited'
+
+- name: openspec:planning
+  color: FF6600
+  description: 'Openspec planning phase - improvement plan documented'
+
+- name: openspec:specification-in-progress
+  color: FF6600
+  description: 'Openspec in-progress phase - component being actively worked on'
+
+- name: openspec:specification-complete
+  color: FF6600
+  description: 'Openspec specification complete - component specification finalized'
+
+- name: openspec:implementation-pending
+  color: 0052CC
+  description: 'Openspec implementation pending - component awaiting being built/improved'
+
+- name: openspec:implementation-in-progress
+  color: 0052CC
+  description: 'Openspec implementation phase - component actively being built/improved'
+
+- name: openspec:status-testing
+  color: 9B00CC
+  description: 'Openspec testing phase - component being tested and validated'
+
+- name: openspec:status-production
+  color: 28A745
+  description: 'Openspec production - component complete and production-ready'
+
+- name: openspec:implementation-complete
+  color: 6F42C1
+  description: 'Openspec implementation complete - component no longer active'

@@ -1,0 +1,235 @@
+# Branch Type to PR Template Mapping
+#
+# Single source of truth for allowed and forbidden branch types and for routing
+# allowed branch types to PR templates. This configuration is consumed by
+# branch validation and GitHub Actions workflows.
+#
+# Format: Each type maps to a PR template filename (without .md extension)
+# All referenced templates must exist in .github/PULL_REQUEST_TEMPLATE/
+#
+# Validation: Verified against actual templates in .github/PULL_REQUEST_TEMPLATE/
+# Last verified: 2026-09-18 (19 templates, 38 types covered)
+
+forbidden_prefixes:
+  - claude
+  - copilot
+  - openai
+
+branch_types:
+  # Feature & Task Types
+  feat:
+    template: pr_feature
+    description: New feature or enhancement
+    example: feat/user-preferences-panel
+
+  task:
+    template: pr_task
+    description: Scoped unit of work
+    example: task/authentication-refactor
+
+  proto:
+    template: pr_feature
+    description: Prototype or experimental work
+    example: proto/new-caching-strategy
+
+  # Bug & Fix Types
+  fix:
+    template: pr_bug
+    description: Bug fix
+    example: fix/authentication-timeout
+
+  hotfix:
+    template: pr_hotfix
+    description: Urgent production fix
+    example: hotfix/critical-security-patch
+
+  revert:
+    template: pr_bug
+    description: Revert previous commit
+    example: revert/pr-2345-bad-merge
+
+  # Release & Version
+  release:
+    template: pr_release
+    description: Release branch
+    example: release/v1.0.0
+
+  # Code Quality & Refactoring
+  refactor:
+    template: pr_refactor
+    description: Code refactoring
+    example: refactor/api-response-structure
+
+  chore:
+    template: pr_chore
+    description: Maintenance or dependency updates
+    example: chore/dependency-updates
+
+  # Documentation & Internationalization
+  docs:
+    template: pr_docs
+    description: Documentation
+    example: docs/branching-strategy-guide
+
+  i18n:
+    template: pr_docs
+    description: Internationalization
+    example: i18n/german-translation-pack
+
+  # Testing & Quality
+  test:
+    template: pr_test
+    description: Tests or test infrastructure
+    example: test/integration-test-suite
+
+  # Performance & Optimization
+  perf:
+    template: pr_feature
+    description: Performance improvements
+    example: perf/query-optimization
+
+  # CI/CD & Build
+  ci:
+    template: pr_ci
+    description: CI/CD pipeline or automation
+    example: ci/github-actions-workflow
+
+  build:
+    template: pr_ci
+    description: Build system changes
+    example: build/webpack-config-update
+
+  # Dependencies
+  deps:
+    template: pr_dep_update
+    description: Dependency updates
+    example: deps/upgrade-npm-packages
+
+  # Security
+  security:
+    template: pr_security
+    description: Security fix
+    example: security/xss-vulnerability-fix
+
+  # Design & UX
+  design:
+    template: pr_design
+    description: Design system or UI changes
+    example: design/button-component-update
+
+  ds:
+    template: pr_design
+    description: Design system
+    example: ds/component-library-update
+
+  a11y:
+    template: pr_a11y
+    description: Accessibility
+    example: a11y/wcag-compliance-audit
+
+  ux:
+    template: pr_design
+    description: User experience
+    example: ux/form-validation-feedback
+
+  # Operations & DevOps
+  ops:
+    template: pr_ci
+    description: Operations or deployment
+    example: ops/database-migration-script
+
+  # Audit & Compliance
+  audit:
+    template: pr_audit
+    description: Audit or compliance review
+    example: audit/security-code-review
+
+  # AI & Code Generation
+  codex:
+    template: pr_aiops
+    description: Code generation or AI-assisted work
+    example: codex/auto-documentation-tool
+
+  # Research & Investigation
+  research:
+    template: pr_feature
+    description: Research or investigation
+    example: research/performance-benchmarks
+
+  # API & Schema
+  api:
+    template: pr_feature
+    description: API surface or contract changes
+    example: api/abilities-endpoint
+
+  schema:
+    template: pr_refactor
+    description: Data or API schema restructuring
+    example: schema/frontmatter-v2-migration
+
+  # Documentation Variants & Content
+  doc:
+    template: pr_docs
+    description: Documentation (singular alias of docs)
+    example: doc/contributing-guide-update
+
+  content:
+    template: pr_docs
+    description: Content updates (website, copy, SEO content)
+    example: content/homepage-copy-refresh
+
+  seo:
+    template: pr_feature
+    description: Search visibility enhancement
+    example: seo/meta-description-coverage
+
+  # Configuration & Maintenance
+  config:
+    template: pr_chore
+    description: Configuration changes
+    example: config/eslint-rules-update
+
+  migrate:
+    template: pr_refactor
+    description: Framework or data migration
+    example: migrate/jest-vitest-runner
+
+  # Testing Variants
+  qa:
+    template: pr_test
+    description: Quality assurance verification
+    example: qa/release-checklist-run
+
+  uat:
+    template: pr_test
+    description: User acceptance testing
+    example: uat/checkout-flow-signoff
+
+  # AI Operations & Automation
+  aiops:
+    template: pr_aiops
+    description: AI-assisted operations
+    example: aiops/flaky-test-triage
+
+  automation:
+    template: pr_aiops
+    description: Automation or agent-driven tasks
+    example: automation/label-sync-workflow
+
+  # Telemetry & Observability
+  telemetry:
+    template: pr_ci
+    description: Telemetry, metrics, or observability
+    example: telemetry/action-version-dashboard
+
+  # Epics
+  epic:
+    template: pr_epic
+    description: Epic spanning multiple related PRs
+    example: epic/workflow-consolidation
+
+# Fallback
+fallback_template: pr_feature
+fallback_description: |
+  Used when branch type is not recognized.
+  Routing logic should log a warning and use this template.
