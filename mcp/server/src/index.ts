@@ -5,40 +5,22 @@
  * Enables Claude agents to invoke skill-scaffold operations as first-class tools
  */
 
-import { z } from 'zod';
+import { resolve } from 'node:path';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { ScaffoldClient } from './client/scaffold-client.js';
+import { ScaffoldClient, type PlanEntry } from './client/scaffold-client.ts';
 
-// Define request schemas with method literals for setRequestHandler
-const ListToolsRequestHandlerSchema = z.object({
-  method: z.literal('tools/list'),
-  params: z.object({}).optional(),
-});
-
-const CallToolRequestHandlerSchema = z.object({
-  method: z.literal('tools/call'),
-  params: z.object({
-    name: z.string(),
-    arguments: z.record(z.unknown()),
-  }),
-});
-
-// Initialize MCP Server
-const server = new Server({
-  name: 'skill-scaffold',
-  version: '1.0.0',
-});
-
-// Declare tools capability
-(server as any).registerCapabilities({ tools: {} });
-
-// Initialize Scaffold Client
-const scaffoldClient = new ScaffoldClient(process.env.SCAFFOLD_DIR || process.cwd());
+/**
+ * The scaffold folder templates are read from: SCAFFOLD_DIR, or this
+ * repository's root (three folders up from mcp/server/src). Never the
+ * process's working folder, which a client may set to anything.
+ */
+export const DEFAULT_SCAFFOLD_DIR = process.env.SCAFFOLD_DIR || resolve(import.meta.dirname, '../../..');
 
 // Define all tools
-const tools: any[] = [
+const tools = [
   {
     name: 'scaffold_apply',
     description: 'Apply skill-scaffold templates to a repository.',
@@ -127,97 +109,134 @@ const tools: any[] = [
   },
 ];
 
-// Register tools list handler
-server.setRequestHandler(ListToolsRequestHandlerSchema as any, async () => ({
-  tools,
-}));
+/**
+ * Create the MCP server.
+ *
+ * @param scaffoldDir Folder templates are read from.
+ * @returns Server, not yet connected.
+ */
+export function createServer(scaffoldDir: string = DEFAULT_SCAFFOLD_DIR): Server {
+  const scaffoldClient = new ScaffoldClient(scaffoldDir);
+  const server = new Server({ name: 'skill-scaffold', version: '1.0.0' }, { capabilities: { tools: {} } });
 
-// Handle tool calls
-server.setRequestHandler(CallToolRequestHandlerSchema as any, async (request) => {
-  const { name, arguments: args } = request.params;
+  server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 
-  try {
-    switch (name) {
-      case 'scaffold_apply': {
-        const result = await handleScaffoldApply(args as any);
-        return { content: [{ type: 'text', text: result }] };
-      }
-      case 'scaffold_dry_run': {
-        const result = await handleScaffoldDryRun(args as any);
-        return { content: [{ type: 'text', text: result }] };
-      }
-      case 'list_templates': {
-        const result = await handleListTemplates(args as any);
-        return { content: [{ type: 'text', text: result }] };
-      }
-      case 'list_variants': {
-        const result = await handleListVariants(args as any);
-        return { content: [{ type: 'text', text: result }] };
-      }
-      case 'template_render': {
-        const result = await handleTemplateRender(args as any);
-        return { content: [{ type: 'text', text: result }] };
-      }
-      case 'validate_variables': {
-        const result = await handleValidateVariables(args as any);
-        return { content: [{ type: 'text', text: result }] };
-      }
-      case 'skill_info': {
-        const result = await handleSkillInfo();
-        return { content: [{ type: 'text', text: result }] };
-      }
-      default:
-        return { content: [{ type: 'text', text: `Unknown tool: ${name}` }] };
-    }
-  } catch (error) {
-    return { content: [{ type: 'text', text: `Error: ${error}`, isError: true }] };
-  }
-});
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: args = {} } = request.params;
+    const text = (result: string) => ({ content: [{ type: 'text' as const, text: result }] });
 
-async function handleScaffoldApply(args: any): Promise<string> {
-  const validation = scaffoldClient.validateVariables({ repo_name: args.repo_name, ...args.variables });
-  if (!validation.valid) {
-    return JSON.stringify({ success: false, errors: validation.errors }, null, 2);
-  }
-
-  const phaseNum = args.phases === 'all' ? undefined : parseInt(args.phases || '3');
-  const templates = scaffoldClient.filterTemplates(args.skill_type, phaseNum ? [phaseNum] : [1, 2, 3]);
-
-  let filesWritten = 0;
-  const errors = [];
-
-  for (const template of templates) {
     try {
-      const rendered = scaffoldClient.renderTemplate(template.source.split('/').pop() || '', {
-        repo_name: args.repo_name,
-        ...args.variables,
-      });
-
-      if (!args.dry_run) {
-        const targetPath = `${args.repo_path}/${template.target}`;
-        const exists = scaffoldClient.fileWouldBeOverwritten(targetPath);
-
-        // Skip if file exists and overwrite not allowed
-        if (exists && !args.overwrite && !template.overwrite) {
-          continue;
-        }
-
-        scaffoldClient.writeFile(targetPath, rendered, args.overwrite || template.overwrite);
-        filesWritten++;
-      } else {
-        filesWritten++;
+      switch (name) {
+        case 'scaffold_apply':
+          return text(await handleScaffoldApply(scaffoldClient, args));
+        case 'scaffold_dry_run':
+          return text(await handleScaffoldDryRun(scaffoldClient, args));
+        case 'list_templates':
+          return text(await handleListTemplates(scaffoldClient, args));
+        case 'list_variants':
+          return text(await handleListVariants(scaffoldClient, args));
+        case 'template_render':
+          return text(await handleTemplateRender(scaffoldClient, args));
+        case 'validate_variables':
+          return text(await handleValidateVariables(scaffoldClient, args));
+        case 'skill_info':
+          return text(await handleSkillInfo());
+        default:
+          return { ...text(`Unknown tool: ${name}`), isError: true };
       }
     } catch (error) {
-      errors.push({ file: template.target, error: String(error) });
+      return { ...text(`Error: ${error instanceof Error ? error.message : String(error)}`), isError: true };
+    }
+  });
+
+  return server;
+}
+
+/**
+ * The templates a request selects.
+ *
+ * @param client Scaffold client.
+ * @param args   Request arguments.
+ * @returns Templates.
+ */
+function selectTemplates(client: ScaffoldClient, args: any) {
+  // Phase semantics are unchanged here (omitted means phase 3); see LS-4748 SC-F07.
+  const phaseNum = args.phases === 'all' ? undefined : parseInt(args.phases || '3');
+  return client.filterTemplates(args.skill_type, phaseNum ? [phaseNum] : [1, 2, 3]);
+}
+
+/**
+ * Validate the request and plan it, without writing.
+ *
+ * @param client Scaffold client.
+ * @param args   Request arguments.
+ * @returns The target root and plan, or the validation errors.
+ */
+function planRequest(
+  client: ScaffoldClient,
+  args: any
+): { errors: Array<{ field?: string; file?: string; error: string }> } | { root: string; plan: PlanEntry[] } {
+  const validation = client.validateVariables({ repo_name: args.repo_name, ...args.variables });
+  if (!validation.valid) {
+    return { errors: validation.errors };
+  }
+  const root = client.resolveTargetRoot(args.repo_path);
+  const overwrite = typeof args.overwrite === 'boolean' ? args.overwrite : undefined;
+  return { root, plan: client.planApply(root, selectTemplates(client, args), overwrite) };
+}
+
+async function handleScaffoldApply(client: ScaffoldClient, args: any): Promise<string> {
+  if (args.dry_run) {
+    return handleScaffoldDryRun(client, args);
+  }
+  const planned = planRequest(client, args);
+  if ('errors' in planned) {
+    return JSON.stringify({ success: false, errors: planned.errors }, null, 2);
+  }
+  const { root, plan } = planned;
+  const variables = { repo_name: args.repo_name, ...args.variables };
+  const toWrite = plan.filter((entry) => entry.action !== 'skip');
+  const skipped = plan.filter((entry) => entry.action === 'skip');
+
+  // Render everything first, so a template error writes nothing.
+  const errors: Array<{ file: string; error: string }> = [];
+  const rendered = new Map<string, string>();
+  for (const entry of toWrite) {
+    try {
+      rendered.set(entry.file, client.renderTemplate(entry.source, variables));
+    } catch (error) {
+      errors.push({ file: entry.file, error: error instanceof Error ? error.message : String(error) });
     }
   }
+
+  const written: Array<{ file: string; action: string }> = [];
+  if (errors.length === 0) {
+    for (const entry of toWrite) {
+      try {
+        client.writeFile(root, entry.file, rendered.get(entry.file) as string, entry.action as 'create' | 'overwrite');
+        written.push({ file: entry.file, action: entry.action });
+      } catch (error) {
+        errors.push({ file: entry.file, error: error instanceof Error ? error.message : String(error) });
+        break;
+      }
+    }
+  }
+  const done = new Set(written.map((entry) => entry.file));
+  const notWritten = toWrite.filter((entry) => !done.has(entry.file));
 
   return JSON.stringify(
     {
       success: errors.length === 0,
-      filesWritten,
-      coverage: Math.round((filesWritten / (filesWritten + templates.length || 1)) * 100),
-      summary: `Applied ${filesWritten} templates`,
+      repoPath: root,
+      filesWritten: written.length,
+      filesSkipped: skipped.length,
+      written,
+      skipped: skipped.map(({ file, reason }) => ({ file, reason })),
+      notWritten: errors.length ? notWritten.map((entry) => entry.file) : undefined,
+      coverage: Math.round((written.length / (written.length + plan.length || 1)) * 100),
+      summary: errors.length
+        ? `Stopped after ${written.length} of ${toWrite.length} files`
+        : `Applied ${written.length} templates, skipped ${skipped.length}`,
       errors: errors.length > 0 ? errors : undefined,
     },
     null,
@@ -225,23 +244,27 @@ async function handleScaffoldApply(args: any): Promise<string> {
   );
 }
 
-async function handleScaffoldDryRun(args: any): Promise<string> {
-  const phaseNum = args.phases === 'all' ? undefined : parseInt(args.phases || '3');
-  const templates = scaffoldClient.filterTemplates(args.skill_type, phaseNum ? [phaseNum] : [1, 2, 3]);
-
+async function handleScaffoldDryRun(client: ScaffoldClient, args: any): Promise<string> {
+  const planned = planRequest(client, args);
+  if ('errors' in planned) {
+    return JSON.stringify({ success: false, errors: planned.errors }, null, 2);
+  }
+  const { root, plan } = planned;
+  const count = (action: string) => plan.filter((entry) => entry.action === action).length;
   return JSON.stringify(
     {
       success: true,
-      proposedChanges: templates.map((t) => ({ file: t.target, action: 'create', phase: t.phase })),
-      totalFiles: templates.length,
-      summary: `Would apply ${templates.length} templates`,
+      repoPath: root,
+      proposedChanges: plan.map(({ file, action, phase, reason }) => ({ file, action, phase, ...(reason && { reason }) })),
+      totalFiles: plan.length,
+      summary: `Would create ${count('create')}, overwrite ${count('overwrite')} and skip ${count('skip')} files`,
     },
     null,
     2
   );
 }
 
-async function handleListTemplates(args: any): Promise<string> {
+async function handleListTemplates(scaffoldClient: ScaffoldClient, args: any): Promise<string> {
   const phaseNum = args.phase === 'all' ? undefined : (args.phase ? parseInt(args.phase) : undefined);
   const templates = scaffoldClient.filterTemplates(args.skill_type, phaseNum ? [phaseNum] : undefined);
 
@@ -261,7 +284,7 @@ async function handleListTemplates(args: any): Promise<string> {
   );
 }
 
-async function handleListVariants(args: any): Promise<string> {
+async function handleListVariants(scaffoldClient: ScaffoldClient, args: any): Promise<string> {
   const variants = scaffoldClient.getVariants(args.skill_type, args.phases);
   const variantArray = Array.from(variants.entries()).map(([tag, temps]) => ({
     tag,
@@ -272,7 +295,7 @@ async function handleListVariants(args: any): Promise<string> {
   return JSON.stringify({ skillType: args.skill_type, variants: variantArray }, null, 2);
 }
 
-async function handleTemplateRender(args: any): Promise<string> {
+async function handleTemplateRender(scaffoldClient: ScaffoldClient, args: any): Promise<string> {
   try {
     const content = scaffoldClient.renderTemplate(args.template_name, args.variables || {});
     return JSON.stringify(
@@ -285,7 +308,7 @@ async function handleTemplateRender(args: any): Promise<string> {
   }
 }
 
-async function handleValidateVariables(args: any): Promise<string> {
+async function handleValidateVariables(scaffoldClient: ScaffoldClient, args: any): Promise<string> {
   const schema = scaffoldClient.getVariableSchema();
   const validation = scaffoldClient.validateVariables(args.variables || {});
 
@@ -325,11 +348,14 @@ async function handleSkillInfo(): Promise<string> {
 
 async function main() {
   const transport = new StdioServerTransport();
-  await server.connect(transport);
+  await createServer().connect(transport);
   console.error('[skill-scaffold MCP Server] Connected and ready');
 }
 
-main().catch((error) => {
-  console.error('[skill-scaffold MCP Server] Fatal error:', error);
-  process.exit(1);
-});
+// Start only when run directly, not when imported by the tests.
+if (import.meta.main) {
+  main().catch((error) => {
+    console.error('[skill-scaffold MCP Server] Fatal error:', error);
+    process.exit(1);
+  });
+}

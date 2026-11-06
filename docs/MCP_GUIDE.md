@@ -8,47 +8,66 @@ The **skill-scaffold MCP Server** enables Claude agents to invoke skill-scaffold
 
 ## Quick Start
 
+### Requirements
+
+Node.js 24 or later. Node runs the TypeScript sources in `mcp/server/src/` directly (type stripping), so there is no build step and no `dist/` folder.
+
 ### Installation
 
 ```bash
-cd /Users/ash/work/skill-scaffold/mcp/server
+cd mcp/server
 npm install
-npm run build
 ```
 
 ### Running the Server
 
 ```bash
-# Standard mode (stdio transport)
-node dist/index.js
+# Standard mode (stdio transport), from any folder
+node /path/to/ls-skill-scaffold/mcp/server/src/index.ts
 
-# With custom scaffold directory
-SCAFFOLD_DIR=/path/to/templates node dist/index.js
+# Or, inside mcp/server
+npm start
 ```
 
-### Configuration in Claude Code or MCP Inspector
+Templates are read from the repository root (the folder that holds `scaffold.config.json`), found from the server's own location. Set `SCAFFOLD_DIR` only to read templates from another checkout; it must point at that checkout's root, not its `templates/` folder.
 
-Add to your MCP client configuration (e.g., in Claude's `.claude/mcp.json`):
+### Configuration in Claude Code or Claude Desktop
+
+Claude Code (user scope):
+
+```bash
+claude mcp add --scope user skill-scaffold -- node /path/to/ls-skill-scaffold/mcp/server/src/index.ts
+```
+
+Claude Desktop (`claude_desktop_config.json`), or a project `.mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "skill-scaffold": {
       "command": "node",
-      "args": ["/Users/ash/work/skill-scaffold/mcp/server/dist/index.js"],
-      "env": {
-        "SCAFFOLD_DIR": "/Users/ash/work/skill-scaffold/templates"
-      }
+      "args": ["/path/to/ls-skill-scaffold/mcp/server/src/index.ts"]
     }
   }
 }
 ```
 
+Claude Desktop starts servers with a minimal `PATH`; if `node` is not found, use the absolute path to Node 24 as `command`.
+
 ### Testing with MCP Inspector
 
 ```bash
-npx @modelcontextprotocol/inspector node /Users/ash/work/skill-scaffold/mcp/server/dist/index.js
+npx @modelcontextprotocol/inspector node /path/to/ls-skill-scaffold/mcp/server/src/index.ts
 ```
+
+### Tests
+
+```bash
+cd mcp/server
+npm test
+```
+
+Vitest 5.1.0 with V8 coverage (`text`, `json-summary` and `lcov` reports, no threshold). The tests read templates from this repository and write only to temporary folders.
 
 ---
 
@@ -75,25 +94,39 @@ The MCP server exposes **7 tools** for managing skill-scaffold templates:
 **Apply skill-scaffold templates to a repository.**
 
 **Parameters:**
-- `repo_path` (string, required): Target repository directory path
+- `repo_path` (string, required): Absolute path to an existing folder outside this scaffold. It is refused if it is relative, contains `..`, is the filesystem root or your home folder, or is inside the scaffold. Templates are written under it, never anywhere else.
 - `repo_name` (string, required): Repository name for template interpolation
-- `skill_type` (enum, optional): Filter templates by skill type (`cli`, `validation`, `documentation`, `agent`)
+- `skill_type` (enum, optional): Filter templates by skill type (`cli`, `validation`, `documentation`, `agent`). Every template without a variant is always included; a skill type adds only the variants tagged for it (`package.json:cli`, `package.json:validation`, `package.json:docs` for `documentation`). Without a skill type, every template is selected.
 - `variables` (object, optional): Custom variables for template rendering
-- `dry_run` (boolean, optional, default=false): Preview changes without writing
-- `phases` (enum, optional): Restrict to phases (`1`, `2`, `3`, `all`)
-- `overwrite` (boolean, optional, default=false): Allow overwriting existing files
+- `dry_run` (boolean, optional, default=false): Return the `scaffold_dry_run` plan instead of writing
+- `phases` (enum, optional): Restrict to phases (`1`, `2`, `3`, `all`). Omitted means phase `3` only; pass `all` for every phase.
+- `overwrite` (boolean, optional): What happens to files that already exist:
+  - `true`: every selected file that exists is replaced;
+  - `false`: no existing file is replaced, whatever the manifest says;
+  - omitted: the manifest's per-template `overwrite` decides (`scaffold.config.json`).
+
+  Missing files are always created. Files the plan does not select are never touched.
+
+**Safety:**
+- Writes never follow links: if a folder on the way to a target is a symbolic link, the request fails. `.git` paths are never written.
+- Every template is rendered before anything is written, so a template error writes nothing.
+- A file planned as `create` is written exclusively: if one appeared since the plan, it is not replaced. An `overwrite` is written to a temporary file and renamed into place.
 
 **Returns:**
 ```json
 {
   "success": true,
+  "repoPath": "/path/to/my-repo",
   "filesWritten": 5,
   "filesSkipped": 2,
+  "written": [{ "file": "lefthook.yml", "action": "overwrite" }],
+  "skipped": [{ "file": "SKILL.md", "reason": "exists; the request sets overwrite: false" }],
   "coverage": 71,
-  "summary": "Applied 5 templates",
-  "errors": []
+  "summary": "Applied 5 templates, skipped 2"
 }
 ```
+
+On a write failure, `success` is `false`, `errors` names the file, and `notWritten` lists the planned files that were not written.
 
 **Example:**
 ```json
@@ -120,25 +153,21 @@ The MCP server exposes **7 tools** for managing skill-scaffold templates:
 **Preview changes without writing files.**
 
 **Parameters:**
-- `repo_path` (string, required): Target repository path
-- `repo_name` (string, required): Repository name
-- `skill_type` (enum, optional): Filter by skill type
-- `variables` (object, optional): Template variables
-- `phases` (enum, optional): Restrict to phases
+- `repo_path`, `repo_name`, `skill_type`, `variables`, `phases`, `overwrite`: as for `scaffold_apply`
+
+It validates the variables and the target exactly as `scaffold_apply` does, and checks what is already in the target, so each file's `action` is what `scaffold_apply` will do with the same arguments: `create`, `overwrite` or `skip` (with a `reason`). It writes nothing. File contents are not included; use `template_render` for one file's content.
 
 **Returns:**
 ```json
 {
   "success": true,
+  "repoPath": "/path/to/my-repo",
   "proposedChanges": [
-    {
-      "file": "src/cli/index.ts",
-      "action": "create",
-      "phase": 1
-    }
+    { "file": "package.json", "action": "create", "phase": 1 },
+    { "file": "SKILL.md", "action": "skip", "phase": 2, "reason": "exists; the manifest does not allow replacing it" }
   ],
-  "totalFiles": 3,
-  "summary": "Would apply 3 templates"
+  "totalFiles": 2,
+  "summary": "Would create 1, overwrite 0 and skip 1 files"
 }
 ```
 
@@ -487,7 +516,7 @@ console.log(`Created: ${result.filesWritten} files`);
 
 ```bash
 # Start MCP Inspector
-npx @modelcontextprotocol/inspector node /path/to/dist/index.js
+npx @modelcontextprotocol/inspector node /path/to/ls-skill-scaffold/mcp/server/src/index.ts
 
 # In the Inspector UI, test tools:
 # 1. skill_info (no arguments)

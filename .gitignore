@@ -29,6 +29,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 package.json
+# The MCP server needs its own manifest (LS-4748 SC-F08).
+!mcp/server/package.json
 package-lock.json
 pnpm-lock.yaml
 .pnpm-debug.log
