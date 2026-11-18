@@ -3,8 +3,20 @@
  * Handles template loading, rendering, and file operations
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, realpathSync } from 'fs';
-import { join, dirname, resolve, relative, sep } from 'path';
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  realpathSync,
+  lstatSync,
+  renameSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
+import { randomBytes } from 'node:crypto';
+import { homedir } from 'node:os';
+import { join, dirname, isAbsolute, sep } from 'node:path';
 
 export interface TemplateInfo {
   name: string;
@@ -17,6 +29,22 @@ export interface TemplateInfo {
   variant?: string;
   specialized?: boolean;
 }
+
+/** What applying a template does to the target repository. */
+export type PlanAction = 'create' | 'overwrite' | 'skip';
+
+export interface PlanEntry {
+  file: string;
+  source: string;
+  phase: number;
+  action: PlanAction;
+  reason?: string;
+}
+
+// Skill types whose variant tag differs from the type name.
+const VARIANT_ALIASES: Record<string, string[]> = {
+  documentation: ['documentation', 'docs'],
+};
 
 export interface ScaffoldConfig {
   version: string;
@@ -97,11 +125,15 @@ export class ScaffoldClient {
       templates = templates.filter((t) => phases.includes(t.phase));
     }
 
-    // Filter by skill type based on variant tags
+    // With a skill type: every common template (no variant), plus the
+    // variants tagged for that type (package.json:cli and so on). Variants
+    // for other types or other purposes are left out.
     if (skillType) {
+      const tags = VARIANT_ALIASES[skillType] || [skillType];
       templates = templates.filter((t) => {
-        if (!t.variant) return false;
-        return t.variant.includes(skillType) || t.target.includes(skillType);
+        if (!t.variant) return true;
+        const tag = t.variant.split(':').pop() || '';
+        return tags.includes(tag);
       });
     }
 
@@ -258,73 +290,141 @@ export class ScaffoldClient {
   }
 
   /**
-   * Resolve file path safely within repo
-   * Security: Uses resolve + relative to prevent traversal
-   * Returns resolved path if valid, throws if invalid
+   * Resolve the repository that templates are written into.
+   * The write root is separate from the scaffold, which templates are read from.
+   *
+   * @param repoPath Absolute path to an existing folder.
+   * @returns Its real path.
    */
-  private resolveSafePath(targetPath: string, _allowOverwrite: boolean = false): string {
-    // Reject obvious traversal attempts early
-    if (targetPath.includes('..')) {
-      throw new Error(`Invalid path: contains parent directory reference`);
+  resolveTargetRoot(repoPath: string): string {
+    if (typeof repoPath !== 'string' || !repoPath.trim()) {
+      throw new Error('repo_path must be a non-empty path');
     }
-
-    // Use resolve + relative for bulletproof path containment
-    const baseDir = resolve(this.scaffoldDir);
-    const fullPath = resolve(baseDir, targetPath);
-    const relativePath = relative(baseDir, fullPath);
-
-    // Verify path is contained within base directory
-    // relative() returns '..' if path escapes
-    if (relativePath.startsWith('..') || relativePath === '.') {
-      throw new Error(`File path outside repository directory (security violation)`);
+    if (!isAbsolute(repoPath)) {
+      throw new Error(`repo_path must be an absolute path: ${repoPath}`);
     }
-
-    // Prevent writes to scaffold's own critical directories
-    if (
-      relativePath.startsWith('scaffold.config.json') ||
-      relativePath.startsWith('templates' + sep) ||
-      relativePath.startsWith('mcp' + sep)
-    ) {
-      throw new Error(`Cannot overwrite scaffold infrastructure files`);
+    if (repoPath.split(/[\\/]/).includes('..')) {
+      throw new Error(`repo_path must not contain "..": ${repoPath}`);
     }
-
-    return fullPath;
+    if (!existsSync(repoPath) || !statSync(repoPath).isDirectory()) {
+      throw new Error(`repo_path is not an existing folder: ${repoPath}`);
+    }
+    const root = realpathSync(repoPath);
+    if (root === sep || root === realpathSync(homedir())) {
+      throw new Error(`repo_path must not be the filesystem root or your home folder: ${root}`);
+    }
+    const scaffold = realpathSync(this.scaffoldDir);
+    if (root === scaffold || root.startsWith(scaffold + sep)) {
+      throw new Error(`repo_path must not be inside the scaffold itself: ${root}`);
+    }
+    return root;
   }
 
   /**
-   * Check if file would be overwritten (uses unified safe path resolution)
+   * Resolve one template target inside the write root, without following links.
+   *
+   * @param root   Real path of the target repository.
+   * @param target Relative target from scaffold.config.json.
+   * @returns The full path and whether a file is already there.
    */
-  fileWouldBeOverwritten(targetPath: string): boolean {
-    const fullPath = this.resolveSafePath(targetPath);
-    return existsSync(fullPath);
+  resolveTargetPath(root: string, target: string): { fullPath: string; exists: boolean } {
+    const parts = target.split('/');
+    if (isAbsolute(target) || parts.some((part) => part === '' || part === '.' || part === '..')) {
+      throw new Error(`Invalid target path: ${target}`);
+    }
+    if (parts.includes('.git')) {
+      throw new Error(`Git paths are never written: ${target}`);
+    }
+    // Every folder on the way must be a real folder, or not exist yet.
+    for (let i = 1; i < parts.length; i++) {
+      const ancestor = join(root, ...parts.slice(0, i));
+      const stat = lstatOrNull(ancestor);
+      if (!stat) break;
+      if (stat.isSymbolicLink()) {
+        throw new Error(`${parts.slice(0, i).join('/')} is a symbolic link; writes never follow links`);
+      }
+      if (!stat.isDirectory()) {
+        throw new Error(`${parts.slice(0, i).join('/')} is not a folder`);
+      }
+    }
+    const fullPath = join(root, ...parts);
+    const stat = lstatOrNull(fullPath);
+    if (stat && !stat.isFile()) {
+      throw new Error(`${target} exists and is not a regular file`);
+    }
+    return { fullPath, exists: Boolean(stat) };
   }
 
   /**
-   * Write file to target path
-   * Security: Single unified helper prevents TOCTOU, symlink, and traversal attacks
-   * - Validates path stays within repo using path.resolve + path.relative
-   * - Prevents writes to scaffold's own config and templates directories
-   * - Atomic exclusive create when overwrite not allowed
+   * Decide what applying each template would do. Shared by dry run and apply,
+   * so the preview is the plan that apply carries out.
+   *
+   * Overwrite precedence (SC-D02): an explicit request `overwrite` decides for
+   * every existing file; when the request leaves it out, the manifest's
+   * per-template `overwrite` decides. Missing files are always created.
+   *
+   * @param root      Real path of the target repository.
+   * @param templates Selected templates.
+   * @param overwrite The request's overwrite value, if given.
+   * @returns One entry per template.
    */
-  writeFile(targetPath: string, content: string, _allowOverwrite: boolean = false): void {
-    const fullPath = this.resolveSafePath(targetPath);
+  planApply(root: string, templates: TemplateInfo[], overwrite?: boolean): PlanEntry[] {
+    return templates.map((t) => {
+      const { exists } = this.resolveTargetPath(root, t.target);
+      const entry = { file: t.target, source: t.source, phase: t.phase };
+      if (!exists) {
+        return { ...entry, action: 'create' as const };
+      }
+      if (overwrite === true) {
+        return { ...entry, action: 'overwrite' as const, reason: 'exists; the request sets overwrite: true' };
+      }
+      if (overwrite === false) {
+        return { ...entry, action: 'skip' as const, reason: 'exists; the request sets overwrite: false' };
+      }
+      return t.overwrite
+        ? { ...entry, action: 'overwrite' as const, reason: 'exists; the manifest allows replacing it' }
+        : { ...entry, action: 'skip' as const, reason: 'exists; the manifest does not allow replacing it' };
+    });
+  }
 
-    // Ensure parent directory exists
-    const parentDir = dirname(fullPath);
-    if (!existsSync(parentDir)) {
-      mkdirSync(parentDir, { recursive: true });
+  /**
+   * Write one rendered template. A create never replaces a file that appeared
+   * since the plan; an overwrite writes a temporary file beside the target and
+   * renames it into place, so the target is never half-written.
+   *
+   * @param root    Real path of the target repository.
+   * @param target  Relative target.
+   * @param content Rendered content.
+   * @param action  The planned action.
+   */
+  writeFile(root: string, target: string, content: string, action: 'create' | 'overwrite'): void {
+    this.resolveTargetPath(root, target);
+    const parts = target.split('/');
+    for (let i = 1; i < parts.length; i++) {
+      const folder = join(root, ...parts.slice(0, i));
+      if (!lstatOrNull(folder)) {
+        mkdirSync(folder);
+      }
     }
+    // Re-check after creating folders: nothing on the way may be a link.
+    const { fullPath, exists } = this.resolveTargetPath(root, target);
 
-    // Final security check: resolve parent dir's real path and verify containment
-    // This catches symlinks in intermediate directories
-    const realParentDir = realpathSync(parentDir);
-    const realBaseDir = realpathSync(resolve(this.scaffoldDir));
-    if (!realParentDir.startsWith(realBaseDir + sep) && realParentDir !== realBaseDir) {
-      throw new Error(`Parent directory resolved outside repository (symlink attack detected)`);
+    if (action === 'create') {
+      // 'wx' fails if a file appeared since the plan.
+      writeFileSync(fullPath, content, { encoding: 'utf-8', flag: 'wx' });
+      return;
     }
-
-    // Write file (atomic: will throw if file exists and overwrite=false)
-    writeFileSync(fullPath, content, 'utf-8');
+    if (!exists) {
+      throw new Error(`${target} was planned as an overwrite but no longer exists`);
+    }
+    const temp = join(dirname(fullPath), `.${parts[parts.length - 1]}.scaffold-${randomBytes(6).toString('hex')}.tmp`);
+    try {
+      writeFileSync(temp, content, { encoding: 'utf-8', flag: 'wx' });
+      renameSync(temp, fullPath);
+    } catch (error) {
+      rmSync(temp, { force: true });
+      throw error;
+    }
   }
 
   /**
@@ -344,5 +444,21 @@ export class ScaffoldClient {
     const minSavings = 5 + phase * 10;
     const maxSavings = 15 + phase * 20;
     return `${minSavings}-${maxSavings} minutes (${templateCount} templates)`;
+  }
+}
+
+/**
+ * lstat that returns null when nothing is there.
+ *
+ * @param path Path.
+ * @returns Stats, or null.
+ */
+function lstatOrNull(path: string): ReturnType<typeof lstatSync> | null {
+  try {
+    return lstatSync(path);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT' || code === 'ENOTDIR') return null;
+    throw error;
   }
 }

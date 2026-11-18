@@ -248,7 +248,7 @@ Overwrite? (yes/no/skip)
 ```
 ❌ Cannot connect to skill-scaffold MCP server
    This skill requires the MCP server to be running.
-   Start it with: npx @modelcontextprotocol/inspector node /path/to/server/dist/index.js
+   Start it with: npx @modelcontextprotocol/inspector node /path/to/ls-skill-scaffold/mcp/server/src/index.ts
 ```
 
 ---
@@ -340,7 +340,7 @@ This skill requires the skill-scaffold MCP server running with these tools:
 - `scaffold_apply` — write files to disk
 - `skill_info` — get metadata (coverage %, template count)
 
-**Start the server:** `npx @modelcontextprotocol/inspector node /path/to/server/dist/index.js`
+**Start the server:** `npx @modelcontextprotocol/inspector node /path/to/ls-skill-scaffold/mcp/server/src/index.ts`
 
 ### For Agents (Automation)
 Pass all variables upfront for instant form-mode generation:
@@ -372,7 +372,7 @@ Claude will guide you through each step, validate as you go, and confirm before 
 A: Start the skill-scaffold MCP server:
 ```bash
 cd /path/to/skill-scaffold/mcp/server
-npx @modelcontextprotocol/inspector node dist/index.js
+npx @modelcontextprotocol/inspector node src/index.ts
 ```
 
 **Q: "File already exists, skipped"**
