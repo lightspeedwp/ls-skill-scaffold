@@ -1,27 +1,12 @@
 # Lefthook Configuration for skill-scaffold MCP
 #
-# Validates: Python linting, YAML/JSON, branch names, and changelog
+# Validates: YAML/JSON, Markdown and branch names
 # Install: lefthook install
 # Run: lefthook run pre-commit (or git will auto-run on commit)
 
 pre-commit:
   parallel: true
   jobs:
-    # Python: ruff linting and formatting
-    - name: ruff format
-      glob: '*.py'
-      run: ruff format {staged_files} && git add {staged_files}
-      stage_fixed: true
-
-    - name: ruff lint
-      glob: '*.py'
-      run: ruff check {staged_files} --fix
-
-    # Python: type checking (if mypy is available)
-    - name: mypy type check
-      glob: '*.py'
-      run: mypy {staged_files} || true
-
     # YAML validation
     - name: yamllint
       glob: '*.{yml,yaml}'
@@ -30,7 +15,7 @@ pre-commit:
     # JSON validation
     - name: json validation
       glob: '*.json'
-      run: python3 -m json.tool {staged_files} > /dev/null || (echo "Invalid JSON in {staged_files}" && exit 1)
+      run: node -e 'for (const f of process.argv.slice(1)) JSON.parse(require("fs").readFileSync(f, "utf8"))' {staged_files} || (echo "Invalid JSON in {staged_files}" && exit 1)
 
     # Markdown linting
     - name: markdownlint

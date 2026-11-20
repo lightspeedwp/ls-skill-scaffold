@@ -1,73 +1,22 @@
 # Tests
 
-Test suite for the scaffold-generator skill.
-
 ## Structure
 
-```
+```text
 tests/
-├── unit/           # Unit tests for individual functions
-├── evals/          # Evaluation tests for end-to-end skill behavior
-└── conftest.py     # Pytest fixtures and shared test configuration
+└── evals/          # Prompt-based evaluation cases for the skill's behaviour
 ```
 
-## Running Tests
+## Evaluation cases
 
-### All tests
-```bash
-pytest tests/ -v
-```
+Each YAML file in `evals/` describes one conversation: the user's prompt, the interaction mode, the skill type and the expected behaviour. `evals/eval_metadata.json` lists the cases.
 
-### Unit tests only
-```bash
-pytest tests/unit -v
-```
+| Case | Covers |
+|------|--------|
+| `case-1-conversational.yaml` | First-time user guided step by step |
+| `case-2-form-mode.yaml` | Experienced user supplying every variable at once |
+| `case-3-error-handling.yaml` | Invalid input and recovery |
 
-### Evaluation tests only
-```bash
-pytest tests/evals -v
-```
+## Removed Python tests
 
-### With coverage report
-```bash
-pytest tests/ --cov=skills/scaffold-generator/scripts --cov-report=html
-# View report: open htmlcov/index.html
-```
-
-## Test Coverage
-
-Target: 80% code coverage across scripts and core logic.
-
-Current status: See `.github/workflows/test.yml` for CI results.
-
-## Writing Tests
-
-Each test file should:
-1. Test one logical unit or behavior
-2. Use descriptive names: `test_<function>_<scenario>`
-3. Include setup/teardown via `conftest.py` fixtures
-4. Mock external dependencies (file I/O, API calls)
-
-Example:
-```python
-def test_validate_skill_name_rejects_invalid_characters(mock_variables):
-    """Validation should reject skill names with spaces."""
-    result = scaffold_validate.validate_variables(
-        {"skill_name": "my skill"}  # Invalid
-    )
-    assert result.errors is not None
-```
-
-## Debugging Tests
-
-Run a single test with output:
-```bash
-pytest tests/unit/test_scaffold_validate.py::test_my_test -vvs
-```
-
-## CI Integration
-
-Tests run automatically on:
-- Pull requests to `develop` and `main`
-- Commits to `develop` and `main`
-- See `.github/workflows/test.yml` for workflow details
+The pytest unit tests were removed with the Python helper scripts they tested (LS-4748). Those tests called functions with arguments the scripts did not accept, so they never checked real behaviour.
