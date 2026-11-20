@@ -19,22 +19,22 @@ Status: **agreed 18 November 2026** (Warwick). Rows marked *To do* describe the 
 
 | Public name (`scaffold.config.json`) | Default | Template placeholder(s) filled | Status |
 |---|---|---|---|
-| `repo_name` *(required)* | none | `repo_name`, `skillSlug` | To do (`skillSlug` renders empty today) |
-| `repo_description` *(required)* | none | `repo_description`, `skillDescription` | To do |
-| `author` *(required)* | none | `authorName` | To do |
+| `repo_name` *(required)* | none | `repo_name`, `skillSlug` | Works |
+| `repo_description` *(required)* | none | `repo_description`, `skillDescription` | Works |
+| `author` *(required)* | none | `authorName` | Works |
 | `version` *(required)* | none | `version` | Works |
-| `min_node_version` | `24.0.0` | `nodeVersion`, `nodeMinVersion` | To do |
-| `coverage_threshold` | `80` | `testCoverageThreshold` | To do |
-| `branch_prefix` | `skill-` | `branch_prefix` | Works when supplied; default not applied |
-| `branch_pattern` | `^(wp-db-\|skill-\|main\|develop\|master)$` | `branchPattern` | To do |
-| `has_bats` | `false` | `hasBatsTests` | To do |
-| `has_shell` | `false` | `has_shell`, `hasShellScripts` | To do |
-| `has_yaml` | `false` | `has_yaml`, `hasYamlLinting` | To do |
-| `has_anthropic` | `false` | `hasAnthropicSdk` | To do |
-| `has_migrate` | `false` | `hasMigrationApi` | To do |
+| `min_node_version` | `24.0.0` | `nodeMinVersion` (as given), `nodeVersion` (major only, for `{{nodeVersion}}.x` in workflows) | Works |
+| `coverage_threshold` | `80` | `testCoverageThreshold` | Works |
+| `branch_prefix` | `skill-` | `branch_prefix` | Works |
+| `branch_pattern` | `^(wp-db-\|skill-\|main\|develop\|master)$` | `branchPattern` | Works |
+| `has_bats` | `false` | `hasBatsTests` | Works |
+| `has_shell` | `false` | `has_shell`, `hasShellScripts` | Works |
+| `has_yaml` | `false` | `has_yaml`, `hasYamlLinting` | Works |
+| `has_anthropic` | `false` | `hasAnthropicSdk` | Works |
+| `has_migrate` | `false` | `hasMigrationApi` | Works |
 | `has_jest` | `true` | none (no template uses it) | No change |
 
-Config defaults are merged before rendering. Today they are not, so optional values render empty unless the caller sends them.
+Config defaults are merged before rendering. A value the caller sends under a placeholder's own name (for example `skillName`) always wins over the default and the worked-out value.
 
 ### Worked out automatically
 
@@ -59,6 +59,10 @@ These describe what the new skill does, so they cannot be worked out. In convers
 | `agentPurpose`, `agentCapabilities`, `agentLimitations`, `agentUsageExamples` | agent skill type only |
 | `promptPurpose`, `promptVariables`, `promptExamples` | `PROMPT_TEMPLATE.md` only |
 | `license` | `README.md`, `package.json` (no default: see open questions) |
+| `testCommand` | `.github/workflows/ci.yml` (no source in the config) |
+| `lineLength` | `.markdownlint.json` (no source in the config) |
+| `promptName` | `PROMPT_TEMPLATE.md` |
+| `skillType` | `AGENTS.md`, `PROMPT_TEMPLATE.md`, `SKILL.md`: worked out when `skill_type` is sent, asked for otherwise |
 
 ### Feature flags with no source
 
@@ -66,7 +70,18 @@ These switch optional template sections on or off. They default to `false` (the 
 
 ### Must pass through unchanged
 
-GitHub Actions expressions are not scaffold variables. The renderer must leave them exactly as written: `${{ matrix.os }}`, `${{ steps.version.outputs.VERSION }}`, `${{ secrets.GITHUB_TOKEN }}`, `${{ secrets.NPM_TOKEN }}`. **To do:** the renderer currently deletes them (SC-F06).
+GitHub Actions expressions are not scaffold variables. The renderer leaves every `${{ … }}` exactly as written, for example `${{ matrix.os }}`, `${{ steps.version.outputs.VERSION }}` and `${{ secrets.GITHUB_TOKEN }}`.
+
+### How values are written
+
+- Values are written as they are. Output is not HTML-escaped, and `$&` or `$1` in a value stays literal.
+- In JSON targets (`package.json` and its variants, `.eslintrc.json`, `.eslintrc.strict`, `.eslintrc.browser`, `.markdownlint.json`), values are JSON-escaped, and the rendered file must parse. A file that does not parse is an error, and nothing is written.
+- A plain `{{name}}` with no value is never written as an empty string. Dry run lists it in `errors[]` (`field`, `file`), and apply writes nothing.
+- The renderer supports plain Mustache only: names, sections over booleans, lists and objects, inverted sections, `{{.}}`, dotted names and comments. Filter syntax (`{{x | default 'y'}}`), partials and delimiter changes are refused with an error.
+
+### Static files
+
+The `files` entries in `scaffold.config.json` (`.eslintrc.cjs`, `.prettierrc`, `.markdownlint.jsonc`) are planned and copied byte for byte with the templates of their phase. The manifest gives them no `overwrite` flag, so an existing copy is kept unless the request sets `overwrite: true` (SC-D02). `list_templates` lists them with `static: true`.
 
 ## 2. MCP tool arguments
 
@@ -88,9 +103,10 @@ Every tool returns one MCP text item whose `text` is a JSON object. Callers pars
 
 | Tool | Fields |
 |---|---|
-| `scaffold_dry_run` | `proposedChanges[]` (`file`, `action`: `create` / `overwrite` / `skip`, `phase`, `reason`), `totalFiles`, `repoPath` |
+| `scaffold_dry_run` | `success`, `proposedChanges[]` (`file`, `action`: `create` / `overwrite` / `skip`, `phase`, `reason`), `totalFiles`, `repoPath`, `errors[]` when apply would refuse |
 | `scaffold_apply` | `filesWritten`, `filesSkipped`, `written[]`, `skipped[]`, `notWritten[]`, `repoPath` |
-| `list_templates` | `templates[]` (`source`, `target`, `phase`, …), `total`, `page`, `pages` |
+| `list_templates` | `templates[]` (`source`, `target`, `phase`, `static` for `files` entries, …), `total`, `page`, `pages` |
+| `template_render` | `success`, `content`, `missing[]` (placeholders with no value), `lines`, `preview` |
 | `validate_variables` | `valid`, `errors[]` (`field`, `error`) |
 | Any tool, on failure | `isError: true`; `text` is a plain message starting `Error:`, not JSON |
 
@@ -121,5 +137,5 @@ Callers that page through `list_templates` keep requesting pages until `page` eq
 ## Open questions
 
 - **`features` has two shapes.** `SKILL.md.mustache` expects a list of strings (`{{.}}`). `README.md.mustache` expects a list of objects with `title` and `description`. The renderer needs one input shape. Proposal: callers send objects, and `SKILL.md` renders `title`.
-- **Licence.** This repository's `LICENSE` file is GPL-3.0, but `skill.json` and `.skill` say MIT. Until that is settled, `license` has no default and is always asked for. `README.md.mustache` also writes `{{license | default 'MIT'}}`, which is not Mustache syntax; it needs replacing with a plain `{{license}}` as part of SC-F06.
-- **Lists and inverted sections.** Several templates loop over lists (`{{#features}}`) or use inverted sections (`{{^skipTests}}`). The current renderer supports neither (SC-F06).
+- **Licence.** This repository's `LICENSE` file is GPL-3.0, but `skill.json` and `.skill` say MIT. Until that is settled, `license` has no default and is always asked for.
+- **`testCommand` and `lineLength`** have no source in the config, so every apply has to send them. Defaults (`npm test`, `120`) would be easy to add to `optionalVariables`, but that is a contract change for review, not part of SC-F06.

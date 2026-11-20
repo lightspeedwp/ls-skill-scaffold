@@ -157,7 +157,7 @@ less ./skill/SKILL.md     # Complete skill docs
 
 ```bash
 # Create a new branch
-git checkout -b {{branchPattern | default 'feature'}}/your-feature
+git checkout -b {{branch_prefix}}your-feature
 
 # Make changes and test
 npm test
@@ -166,7 +166,7 @@ npm test
 git commit -m "feat: add new feature"
 
 # Push and open PR
-git push origin {{branchPattern | default 'feature'}}/your-feature
+git push origin {{branch_prefix}}your-feature
 ```
 
 ### 2. Before Committing

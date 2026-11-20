@@ -22,7 +22,18 @@ const work = realpathSync(mkdtempSync(join(tmpdir(), 'skill-scaffold-test-')));
 afterAll(() => rmSync(work, { recursive: true, force: true }));
 
 const client = new ScaffoldClient(SCAFFOLD);
-const variables = { repo_description: 'A test skill', author: 'LightSpeed', version: '0.1.0' };
+// Required values, plus the ones the templates ask for that cannot be worked
+// out (docs/COMPATIBILITY.md); without them, apply now refuses to write.
+const variables = {
+  repo_description: 'A test skill',
+  author: 'LightSpeed',
+  version: '0.1.0',
+  license: 'GPL-3.0',
+  testCommand: 'npm test',
+  lineLength: 120,
+  promptName: 'Test',
+  promptPurpose: 'Testing',
+};
 let count = 0;
 const target = () => {
   const dir = join(work, `target-${++count}`);
@@ -178,7 +189,7 @@ describe('server over an in-memory transport', () => {
     const root = target();
     writeFileSync(join(root, 'SKILL.md'), 'custom\n');
     writeFileSync(join(root, 'lefthook.yml'), 'custom\n');
-    const request = { repo_path: root, repo_name: 'test-skill', variables, phases: 'all', overwrite: false };
+    const request = { repo_path: root, repo_name: 'test-skill', skill_type: 'cli', variables, phases: 'all', overwrite: false };
 
     const preview = await json('scaffold_dry_run', request);
     expect(readdirSync(root).sort()).toEqual(['SKILL.md', 'lefthook.yml']);

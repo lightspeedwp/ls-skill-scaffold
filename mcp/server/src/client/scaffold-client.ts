@@ -18,6 +18,8 @@ import { randomBytes } from 'node:crypto';
 import { homedir } from 'node:os';
 import { join, dirname, isAbsolute, sep } from 'node:path';
 
+import { renderMustache, type TemplateValue } from './mustache.ts';
+
 export interface TemplateInfo {
   name: string;
   description: string;
@@ -28,6 +30,17 @@ export interface TemplateInfo {
   overwrite: boolean;
   variant?: string;
   specialized?: boolean;
+  /** A `files` entry: copied as it is, never rendered. */
+  static?: boolean;
+}
+
+/** Variables passed to the renderer, after aliases and defaults are added. */
+export type TemplateContext = Record<string, TemplateValue>;
+
+export interface RenderedTemplate {
+  content: string;
+  /** Placeholders that had no value. A file with any of these is not written. */
+  missing: string[];
 }
 
 /** What applying a template does to the target repository. */
@@ -45,6 +58,31 @@ export interface PlanEntry {
 const VARIANT_ALIASES: Record<string, string[]> = {
   documentation: ['documentation', 'docs'],
 };
+
+/**
+ * Template placeholders filled from each public snake_case name
+ * (docs/COMPATIBILITY.md, section 1). A value the caller sends under the
+ * placeholder's own name always wins.
+ */
+const ALIASES: Record<string, string[]> = {
+  repo_name: ['skillSlug'],
+  repo_description: ['skillDescription'],
+  author: ['authorName'],
+  min_node_version: ['nodeMinVersion'],
+  coverage_threshold: ['testCoverageThreshold'],
+  branch_pattern: ['branchPattern'],
+  has_bats: ['hasBatsTests'],
+  has_shell: ['hasShellScripts'],
+  has_yaml: ['hasYamlLinting'],
+  has_anthropic: ['hasAnthropicSdk'],
+  has_migrate: ['hasMigrationApi'],
+};
+
+// Words kept in capitals when a skill name is worked out from its slug.
+const ACRONYMS = new Set(['ai', 'api', 'cli', 'css', 'db', 'html', 'js', 'json', 'ls', 'mcp', 'php', 'seo', 'ui', 'url', 'wp', 'yaml']);
+
+// Targets that must be valid JSON. Values in them are JSON-escaped.
+const JSON_TARGET = /(^|\/)(package\.json(\.[\w-]+)?|\.eslintrc(\.json|\.strict|\.browser)|[^/]+\.json)$/;
 
 export interface ScaffoldConfig {
   version: string;
@@ -66,7 +104,7 @@ export interface ScaffoldConfig {
     phase: number;
   }>;
   requiredVariables: string[];
-  optionalVariables: Record<string, string | number | boolean>;
+  optionalVariables: Record<string, TemplateValue>;
 }
 
 export class ScaffoldClient {
@@ -109,7 +147,21 @@ export class ScaffoldClient {
       overwrite: t.overwrite,
       variant: t.variant,
       specialized: t.specialized,
-    }));
+    })).concat(
+      // Static files (SC-F06): copied as they are. The manifest gives them no
+      // overwrite flag, so an existing file is kept unless the request says
+      // otherwise (SC-D02).
+      (config.files || []).map((f) => ({
+        name: f.source.split('/').pop() || '',
+        description: `Static file: ${f.target}`,
+        phase: f.phase,
+        source: f.source,
+        target: f.target,
+        required: f.required,
+        overwrite: false,
+        static: true,
+      }))
+    );
   }
 
   /**
@@ -159,78 +211,109 @@ export class ScaffoldClient {
   }
 
   /**
-   * Render a single template with basic Mustache syntax support
-   * Supports: {{variable}}, {{#variable}}...{{/variable}} conditional blocks
-   * For complex Mustache features, use the 'mustache' npm package
+   * Build the renderer's variables from a request (docs/COMPATIBILITY.md):
+   * config defaults first, then the camelCase placeholders filled from their
+   * snake_case sources, then values worked out from the slug and skill type,
+   * then everything the caller sent, which wins.
    *
-   * Security: Only accepts template names that exist in scaffold.config.json.
-   * Uses whitelisting + path resolution to prevent traversal attacks.
+   * @param variables Request variables, including repo_name.
+   * @param skillType Skill type, if given.
+   * @returns Variables for the renderer.
    */
-  renderTemplate(templateName: string, variables: Record<string, string | number | boolean>): string {
-    const config = this.loadConfig();
+  buildContext(variables: Record<string, unknown> = {}, skillType?: string): TemplateContext {
+    const supplied = variables as TemplateContext;
+    const base: TemplateContext = { ...(this.loadConfig().optionalVariables || {}), ...supplied };
 
-    // Whitelist approach: only allow templates defined in scaffold.config.json
-    const validTemplate = config.templates.find((t) =>
-      t.source === templateName || t.source.endsWith('/' + templateName)
+    const context: TemplateContext = {};
+    for (const [source, placeholders] of Object.entries(ALIASES)) {
+      if (base[source] === undefined) continue;
+      for (const placeholder of placeholders) context[placeholder] = base[source];
+    }
+
+    // Workflows write `{{nodeVersion}}.x`, so it is the major version only.
+    if (base.min_node_version !== undefined) {
+      context.nodeVersion = String(base.min_node_version).split('.')[0];
+    }
+
+    const slug = typeof base.repo_name === 'string' ? base.repo_name : undefined;
+    if (slug) {
+      context.skillName = slug
+        .split(/[-_\s]+/)
+        .filter(Boolean)
+        .map((word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word[0].toUpperCase() + word.slice(1)))
+        .join(' ');
+      context.quickStartCommand = `/${slug}`;
+    }
+    if (skillType) {
+      context.skillType = skillType;
+      context.hasCLI = skillType === 'cli';
+      context.hasValidation = skillType === 'validation';
+      context.hasDocs = skillType === 'documentation';
+    }
+
+    return { ...base, ...context, ...supplied };
+  }
+
+  /**
+   * Render one template, or read one static file, from scaffold.config.json.
+   *
+   * Security: only accepts sources listed in scaffold.config.json, and the
+   * resolved path must stay inside the scaffold.
+   *
+   * @param templateName Source path or file name from the manifest.
+   * @param context      Variables, normally from buildContext.
+   * @returns Content and the placeholders that had no value.
+   * @throws When the template is unknown, unreadable, uses unsupported syntax,
+   *         or renders a JSON target that does not parse.
+   */
+  renderTemplateDetailed(templateName: string, context: TemplateContext): RenderedTemplate {
+    const entry = this.getAllTemplates().find(
+      (t) => t.source === templateName || t.source.endsWith('/' + templateName)
     );
-
-    if (!validTemplate) {
+    if (!entry) {
       throw new Error(`Template not found in configuration: ${templateName}`);
     }
 
     // Use the config-provided source path, not user input
-    const fullTemplatePath = join(this.scaffoldDir, validTemplate.source);
-
-    // Verify path stays within scaffold directory using resolve + realpath
+    const fullTemplatePath = join(this.scaffoldDir, entry.source);
+    if (!existsSync(fullTemplatePath)) {
+      throw new Error(`Template file not found: ${fullTemplatePath}`);
+    }
     const baseDir = realpathSync(this.scaffoldDir);
     const resolvedPath = realpathSync(fullTemplatePath);
-
     if (!resolvedPath.startsWith(baseDir + sep)) {
       throw new Error(`Template path outside scaffold directory (security violation)`);
     }
 
-    if (!existsSync(resolvedPath)) {
-      throw new Error(`Template file not found: ${resolvedPath}`);
+    const source = readFileSync(resolvedPath, 'utf-8');
+    if (entry.static) {
+      return { content: source, missing: [] };
     }
 
-    const templateContent = readFileSync(resolvedPath, 'utf-8');
-    let rendered = templateContent;
-
-    // Replace {{variable}} patterns
-    for (const [key, value] of Object.entries(variables)) {
-      // Replace simple {{variable}} patterns with the value
-      const pattern = new RegExp(`{{\\s*${this.escapeRegExp(key)}\\s*}}`, 'g');
-      rendered = rendered.replace(pattern, String(value));
-
-      // Replace conditional {{#variable}}...{{/variable}} blocks
-      if (value) {
-        // If value is truthy, keep the block content
-        const conditionalPattern = new RegExp(
-          `{{#\\s*${this.escapeRegExp(key)}\\s*}}([\\s\\S]*?){{/\\s*${this.escapeRegExp(key)}\\s*}}`,
-          'g'
-        );
-        rendered = rendered.replace(conditionalPattern, '$1');
-      } else {
-        // If value is falsy, remove the block content
-        const conditionalPattern = new RegExp(
-          `{{#\\s*${this.escapeRegExp(key)}\\s*}}[\\s\\S]*?{{/\\s*${this.escapeRegExp(key)}\\s*}}`,
-          'g'
-        );
-        rendered = rendered.replace(conditionalPattern, '');
+    const isJson = JSON_TARGET.test(entry.target);
+    const { output, missing } = renderMustache(source, context, {
+      escape: isJson ? (value) => JSON.stringify(value).slice(1, -1) : undefined,
+    });
+    if (isJson && missing.length === 0) {
+      try {
+        JSON.parse(output);
+      } catch (error) {
+        throw new Error(`${entry.target} renders as invalid JSON: ${(error as Error).message}`);
       }
     }
-
-    // Remove unused variables to clean up template
-    rendered = rendered.replace(/{{[^}]*}}/g, '');
-
-    return rendered;
+    return { content: output, missing };
   }
 
   /**
-   * Escape special regex characters in a string
+   * Render a template and return its content only.
+   *
+   * @param templateName Source path or file name from the manifest.
+   * @param variables    Request variables; aliases and defaults are added.
+   * @param skillType    Skill type, if given.
+   * @returns Content.
    */
-  private escapeRegExp(str: string): string {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  renderTemplate(templateName: string, variables: Record<string, unknown>, skillType?: string): string {
+    return this.renderTemplateDetailed(templateName, this.buildContext(variables, skillType)).content;
   }
 
   /**
@@ -238,7 +321,7 @@ export class ScaffoldClient {
    */
   getVariableSchema(): {
     required: string[];
-    optional: Record<string, string | number | boolean>;
+    optional: Record<string, TemplateValue>;
   } {
     const config = this.loadConfig();
     return {
@@ -251,7 +334,7 @@ export class ScaffoldClient {
    * Validate variables against schema
    */
   validateVariables(
-    variables: Record<string, string | number | boolean>
+    variables: Record<string, unknown>
   ): {
     valid: boolean;
     missing: string[];
@@ -272,12 +355,12 @@ export class ScaffoldClient {
       }
     }
 
-    // Validate types
+    // Validate types. Lists and objects feed sections such as {{#features}}.
     for (const [key, value] of Object.entries(variables)) {
-      if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+      if (!isTemplateValue(value)) {
         errors.push({
           field: key,
-          error: `Invalid type for ${key}: must be string, number, or boolean`,
+          error: `Invalid type for ${key}: must be a string, number, boolean, list or object`,
         });
       }
     }
@@ -445,6 +528,22 @@ export class ScaffoldClient {
     const maxSavings = 15 + phase * 20;
     return `${minSavings}-${maxSavings} minutes (${templateCount} templates)`;
   }
+}
+
+/**
+ * Whether a value can be passed to the renderer: JSON data, nothing else.
+ *
+ * @param value Value.
+ * @returns True for strings, numbers, booleans, null, and lists or plain
+ *          objects made of those.
+ */
+function isTemplateValue(value: unknown): boolean {
+  if (value === null || ['string', 'number', 'boolean'].includes(typeof value)) return true;
+  if (Array.isArray(value)) return value.every(isTemplateValue);
+  if (typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.values(value as object).every(isTemplateValue);
+  }
+  return false;
 }
 
 /**

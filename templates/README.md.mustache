@@ -4,7 +4,7 @@
 
 ## What Problem Does This Solve?
 
-{{problemStatement | default 'This skill automates common development workflows:'}}
+{{#problemStatement}}{{problemStatement}}{{/problemStatement}}{{^problemStatement}}This skill automates common development workflows:{{/problemStatement}}
 
 {{#problemFeatures}}
 - {{.}}
@@ -203,7 +203,7 @@ For detailed contribution guidelines, see [CONTRIBUTING.md](./CONTRIBUTING.md) (
 
 ## License
 
-{{license | default 'MIT'}}
+{{license}}
 
 {{#licenseText}}
 {{{licenseText}}}
