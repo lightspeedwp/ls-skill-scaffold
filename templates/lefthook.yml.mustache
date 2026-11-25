@@ -4,7 +4,9 @@
 # - hasShellScripts: Include shellcheck for shell scripts (default: false)
 # - hasProductionDeps: Run production dependency checks (default: false)
 # - skipTests: Skip Jest tests in pre-commit (default: false)
-# - branchPattern: Branch naming pattern regex (default: '^(feature|fix|docs|test|refactor)/')
+# - branchPattern: Branch naming pattern regex. The default follows the LightSpeed
+#   {type}/{scope}-{title} strategy and also allows main, master, bot branches
+#   and release/vX.Y.Z.
 
 pre-commit:
   parallel: true
@@ -35,7 +37,12 @@ pre-commit:
     {{#hasShellScripts}}
     - name: shellcheck
       glob: '*.sh'
-      run: shellcheck skill/scripts/*.sh || true
+      run: |
+        if ! command -v shellcheck >/dev/null 2>&1; then
+          echo "❌ shellcheck is not installed. Install it with: brew install shellcheck (macOS) or apt-get install shellcheck (Linux)"
+          exit 1
+        fi
+        shellcheck {staged_files}
     {{/hasShellScripts}}
 
 pre-push:
@@ -43,9 +50,9 @@ pre-push:
     - name: validate branch name
       run: |
         BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        PATTERN="{{branchPattern}}"
-        if [[ ! $BRANCH =~ $PATTERN ]]; then
-          echo "❌ Branch name must match pattern: $PATTERN"
-          echo "   Examples: feature/..., fix/..., docs/..., test/..., refactor/..."
+        PATTERN='{{branchPattern}}'
+        if ! printf '%s\n' "$BRANCH" | grep -Eq "$PATTERN"; then
+          echo "❌ Branch name '$BRANCH' does not match: $PATTERN"
+          echo "   Use type/scope-title, for example feat/blocks-add-hero or fix/import-null-check."
           exit 1
         fi

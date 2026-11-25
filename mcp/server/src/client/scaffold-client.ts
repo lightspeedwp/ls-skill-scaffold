@@ -82,7 +82,7 @@ const ALIASES: Record<string, string[]> = {
 const ACRONYMS = new Set(['ai', 'api', 'cli', 'css', 'db', 'html', 'js', 'json', 'ls', 'mcp', 'php', 'seo', 'ui', 'url', 'wp', 'yaml']);
 
 // Targets that must be valid JSON. Values in them are JSON-escaped.
-const JSON_TARGET = /(^|\/)(package\.json(\.[\w-]+)?|\.eslintrc(\.json|\.strict|\.browser)|[^/]+\.json)$/;
+const JSON_TARGET = /(^|\/)(package\.json(\.[\w-]+)?|[^/]+\.json)$/;
 
 export interface ScaffoldConfig {
   version: string;

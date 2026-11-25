@@ -18,8 +18,11 @@ module.exports = {
   },
 
   collectCoverageFrom: [
-    '__tests__/**/*.test.js',
-    'skill/**/*.js',
+    '**/*.{js,cjs,mjs}',
+    '!**/node_modules/**',
+    '!**/__tests__/**',
+    '!coverage/**',
+    '!*.config.{js,cjs,mjs}',
   ],
 
   coverageThreshold: {

@@ -25,11 +25,11 @@
       "phase": 1
     },
     {
-      "source": "templates/.eslintrc.json.mustache",
-      "target": ".eslintrc.json",
+      "source": "templates/eslint.config.cjs.mustache",
+      "target": "eslint.config.cjs",
       "overwrite": true,
-      "required": false,
-      "phase": 2
+      "required": true,
+      "phase": 1
     },
     {
       "source": "templates/SKILL.md.mustache",
@@ -100,22 +100,6 @@
       "variant": "package.json:docs"
     },
     {
-      "source": "templates/.eslintrc.strict.mustache",
-      "target": ".eslintrc.strict",
-      "overwrite": false,
-      "required": false,
-      "phase": 3,
-      "variant": "eslintrc:strict"
-    },
-    {
-      "source": "templates/.eslintrc.browser.mustache",
-      "target": ".eslintrc.browser",
-      "overwrite": false,
-      "required": false,
-      "phase": 3,
-      "variant": "eslintrc:browser"
-    },
-    {
       "source": "templates/.github/workflows/test.yml.mustache",
       "target": ".github/workflows/test.yml",
       "overwrite": true,
@@ -182,12 +166,6 @@
   ],
   "files": [
     {
-      "source": "templates/.eslintrc.cjs",
-      "target": ".eslintrc.cjs",
-      "required": true,
-      "phase": 1
-    },
-    {
       "source": "templates/.prettierrc",
       "target": ".prettierrc",
       "required": true,
@@ -209,7 +187,7 @@
   "optionalVariables": {
     "min_node_version": "24.0.0",
     "coverage_threshold": 80,
-    "branch_pattern": "^(wp-db-|skill-|main|master)$",
+    "branch_pattern": "^(main|master|(dependabot|renovate)/.+|release/v?[0-9]+[.][0-9]+[.][0-9]+(-[a-z0-9]+)*|(feat|fix|hotfix|release|refactor|chore|task|doc|docs|test|perf|ci|build|deps|security|revert|research|design|a11y|ux|i18n|ops|proto|ds|api|schema|telemetry|content|seo|config|migrate|qa|uat|audit|codex|aiops|automation|epic)/[a-z0-9]+(-[a-z0-9]+)+)$",
     "branch_prefix": "skill-",
     "has_jest": true,
     "has_bats": false,

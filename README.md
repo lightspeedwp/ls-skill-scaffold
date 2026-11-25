@@ -56,7 +56,7 @@ npm run lint:all
 | `package.json` | Dependencies, scripts, Jest config |
 | `lefthook.yml` | Git hooks (pre-commit, pre-push) |
 | `.coderabbit.yaml` | AI-powered code review |
-| `.eslintrc.cjs` | JavaScript linting |
+| `eslint.config.cjs` | JavaScript linting (ESLint 10 flat config) |
 | `.prettierrc` | Code formatting |
 | `.markdownlint.jsonc` | Markdown validation |
 | `CLAUDE.md` | Development guide |
@@ -65,7 +65,6 @@ npm run lint:all
 ### Phase 2: Extended (95% Coverage) ✨
 | File | Purpose |
 |------|---------|
-| `.eslintrc.json` | ESLint configuration with strict modes |
 | `SKILL.md` | Skill documentation template |
 | `.editorconfig` | Editor standards (EditorConfig) |
 | `.github/workflows/ci.yml` | GitHub Actions CI/CD |
@@ -76,7 +75,6 @@ npm run lint:all
 |----------|-------|---------|
 | **Jest Variants** | jest.config.js.strict, jest.config.js.esm | 90% coverage, ES6 modules |
 | **Package.json Variants** | package.json.cli, .validation, .docs | CLI, validation, documentation skills |
-| **ESLint Variants** | .eslintrc.strict, .eslintrc.browser | Strict rules, browser+node envs |
 | **Workflow Variants** | test.yml, test-matrix.yml | Single node, multi-node testing |
 | **Specialized Workflows** | release.yml, security.yml | Release automation, security scanning |
 | **Documentation** | AGENTS.md, PROMPT_TEMPLATE.md | Agent guides, prompt definitions |

@@ -85,7 +85,7 @@
     "note": "Complete generation request with all details"
   },
   {
-    "query": "Our documentation skill needs an update. Can you regenerate the .eslintrc and GitHub workflows to the latest standards from the scaffold?",
+    "query": "Our documentation skill needs an update. Can you regenerate the ESLint config and GitHub workflows to the latest standards from the scaffold?",
     "should_trigger": true,
     "note": "Updating existing skill files using scaffold templates"
   },

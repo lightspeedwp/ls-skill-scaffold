@@ -4,7 +4,6 @@
  * Variables:
  * - testCoverageThreshold: Minimum coverage percentage (default: 80)
  * - useEsModules: Use ES modules (default: false)
- * - includeSkriptCoverage: Include script coverage in reports (default: false)
  */
 
 module.exports = {
@@ -23,8 +22,11 @@ module.exports = {
   {{/useEsModules}}
 
   collectCoverageFrom: [
-    '__tests__/**/*.test.js'{{#includeSkriptCoverage}},
-    'skill/scripts/**/*.js'{{/includeSkriptCoverage}}
+    '**/*.{js,cjs,mjs}',
+    '!**/node_modules/**',
+    '!**/__tests__/**',
+    '!coverage/**',
+    '!*.config.{js,cjs,mjs}',
   ],
 
   coverageThreshold: {
