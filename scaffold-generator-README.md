@@ -57,19 +57,18 @@ Start here based on what you need:
 
 ---
 
-## Sub-Skills (For Advanced Use)
+## MCP Tools (For Advanced Use)
 
-This skill is built from 5 reusable Python modules that can run independently:
+Each step of the workflow is a tool on the skill-scaffold MCP server, which you can call on its own:
 
-| Module | Purpose |
-|--------|---------|
-| `scaffold_discover` | List available templates, filter by type/phase |
-| `scaffold_validate` | Validate variables against template schema |
-| `scaffold_preview` | Show dry-run (proposed files, paths, substitutions) |
+| Tool | Purpose |
+|------|---------|
+| `list_templates`, `list_variants` | List available templates, filter by type/phase |
+| `validate_variables` | Validate variables against the template requirements |
+| `scaffold_dry_run` | Show the proposed files and actions without writing |
 | `scaffold_apply` | Write files to disk with overwrite protection |
-| `scaffold_generator` | Orchestrate full workflow (conversational or form mode) |
 
-**Most users use the main `scaffold-generator` skill.** Use sub-skills if you need fine-grained control over specific steps. See [docs/architecture.md](docs/architecture.md) for API details.
+**Most users use the main `scaffold-generator` skill**, which calls these tools in order. See [docs/MCP_GUIDE.md](docs/MCP_GUIDE.md) for the server.
 
 ---
 
@@ -77,7 +76,7 @@ This skill is built from 5 reusable Python modules that can run independently:
 
 - **MCP Server** (required): skill-scaffold MCP server running locally or accessible
 - **Storage**: Write access to target repository directory
-- **Optional**: Python 3.8+ for helper scripts, Node.js v24+ to run MCP server locally
+- **Optional**: Node.js v24+ to run the MCP server locally
 
 ---
 

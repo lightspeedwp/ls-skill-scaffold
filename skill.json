@@ -41,30 +41,8 @@
       "skill_info"
     ]
   },
-  "commands": [
-    {
-      "name": "generate",
-      "description": "Generate skill scaffold with guided setup",
-      "usage": "scaffold-generator --repo-path /path/to/repo --skill-type cli",
-      "mode": "conversational"
-    },
-    {
-      "name": "apply",
-      "description": "Apply scaffold with explicit variables (fast mode)",
-      "usage": "scaffold-generator --repo-path /path/to/repo --mode form --variables '{...}'",
-      "mode": "form"
-    }
-  ],
   "dependencies": {
-    "python": ">=3.8",
     "mcp_server": "skill-scaffold@>=1.0.0"
-  },
-  "scripts": {
-    "main": "scripts/scaffold_generator.py",
-    "discover": "scripts/scaffold_discover.py",
-    "validate": "scripts/scaffold_validate.py",
-    "preview": "scripts/scaffold_preview.py",
-    "apply": "scripts/scaffold_apply.py"
   },
   "configuration": {
     "interaction_modes": [

@@ -10,7 +10,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { ScaffoldClient, type PlanEntry } from './client/scaffold-client.ts';
+import { ScaffoldClient, type PlanEntry, type TemplateContext } from './client/scaffold-client.ts';
 
 /**
  * The scaffold folder templates are read from: SCAFFOLD_DIR, or this
@@ -165,24 +165,46 @@ function selectTemplates(client: ScaffoldClient, args: any) {
   return client.filterTemplates(args.skill_type, phaseNum ? [phaseNum] : [1, 2, 3]);
 }
 
+type PlanError = { field?: string; file?: string; error: string };
+
 /**
- * Validate the request and plan it, without writing.
+ * Validate the request, plan it and render every file it would write,
+ * without writing. Dry run and apply share this, so the preview reports the
+ * same problems apply would refuse on.
  *
  * @param client Scaffold client.
  * @param args   Request arguments.
- * @returns The target root and plan, or the validation errors.
+ * @returns The target root, plan, rendered content and any errors.
  */
 function planRequest(
   client: ScaffoldClient,
   args: any
-): { errors: Array<{ field?: string; file?: string; error: string }> } | { root: string; plan: PlanEntry[] } {
-  const validation = client.validateVariables({ repo_name: args.repo_name, ...args.variables });
+): { errors: PlanError[]; root?: undefined } | { root: string; plan: PlanEntry[]; rendered: Map<string, string>; errors: PlanError[] } {
+  const supplied = { repo_name: args.repo_name, ...args.variables };
+  const validation = client.validateVariables(supplied);
   if (!validation.valid) {
     return { errors: validation.errors };
   }
   const root = client.resolveTargetRoot(args.repo_path);
   const overwrite = typeof args.overwrite === 'boolean' ? args.overwrite : undefined;
-  return { root, plan: client.planApply(root, selectTemplates(client, args), overwrite) };
+  const plan = client.planApply(root, selectTemplates(client, args), overwrite);
+  const context: TemplateContext = client.buildContext(supplied, args.skill_type);
+
+  // Render everything first, so a template error or a missing value writes nothing.
+  const errors: PlanError[] = [];
+  const rendered = new Map<string, string>();
+  for (const entry of plan.filter((e) => e.action !== 'skip')) {
+    try {
+      const { content, missing } = client.renderTemplateDetailed(entry.source, context);
+      for (const field of missing) {
+        errors.push({ field, file: entry.file, error: `No value for {{${field}}} in ${entry.file}` });
+      }
+      rendered.set(entry.file, content);
+    } catch (error) {
+      errors.push({ file: entry.file, error: error instanceof Error ? error.message : String(error) });
+    }
+  }
+  return { root, plan, rendered, errors };
 }
 
 async function handleScaffoldApply(client: ScaffoldClient, args: any): Promise<string> {
@@ -190,24 +212,13 @@ async function handleScaffoldApply(client: ScaffoldClient, args: any): Promise<s
     return handleScaffoldDryRun(client, args);
   }
   const planned = planRequest(client, args);
-  if ('errors' in planned) {
+  if (planned.root === undefined) {
     return JSON.stringify({ success: false, errors: planned.errors }, null, 2);
   }
-  const { root, plan } = planned;
-  const variables = { repo_name: args.repo_name, ...args.variables };
+  const { root, plan, rendered } = planned;
+  const errors = [...planned.errors];
   const toWrite = plan.filter((entry) => entry.action !== 'skip');
   const skipped = plan.filter((entry) => entry.action === 'skip');
-
-  // Render everything first, so a template error writes nothing.
-  const errors: Array<{ file: string; error: string }> = [];
-  const rendered = new Map<string, string>();
-  for (const entry of toWrite) {
-    try {
-      rendered.set(entry.file, client.renderTemplate(entry.source, variables));
-    } catch (error) {
-      errors.push({ file: entry.file, error: error instanceof Error ? error.message : String(error) });
-    }
-  }
 
   const written: Array<{ file: string; action: string }> = [];
   if (errors.length === 0) {
@@ -246,18 +257,21 @@ async function handleScaffoldApply(client: ScaffoldClient, args: any): Promise<s
 
 async function handleScaffoldDryRun(client: ScaffoldClient, args: any): Promise<string> {
   const planned = planRequest(client, args);
-  if ('errors' in planned) {
+  if (planned.root === undefined) {
     return JSON.stringify({ success: false, errors: planned.errors }, null, 2);
   }
-  const { root, plan } = planned;
+  const { root, plan, errors } = planned;
   const count = (action: string) => plan.filter((entry) => entry.action === action).length;
   return JSON.stringify(
     {
-      success: true,
+      success: errors.length === 0,
       repoPath: root,
       proposedChanges: plan.map(({ file, action, phase, reason }) => ({ file, action, phase, ...(reason && { reason }) })),
       totalFiles: plan.length,
-      summary: `Would create ${count('create')}, overwrite ${count('overwrite')} and skip ${count('skip')} files`,
+      summary: errors.length
+        ? `Apply would write nothing: ${errors.length} problem(s) to fix first`
+        : `Would create ${count('create')}, overwrite ${count('overwrite')} and skip ${count('skip')} files`,
+      errors: errors.length > 0 ? errors : undefined,
     },
     null,
     2
@@ -297,9 +311,13 @@ async function handleListVariants(scaffoldClient: ScaffoldClient, args: any): Pr
 
 async function handleTemplateRender(scaffoldClient: ScaffoldClient, args: any): Promise<string> {
   try {
-    const content = scaffoldClient.renderTemplate(args.template_name, args.variables || {});
+    const variables = args.variables || {};
+    const { content, missing } = scaffoldClient.renderTemplateDetailed(
+      args.template_name,
+      scaffoldClient.buildContext(variables, args.skill_type ?? variables.skill_type)
+    );
     return JSON.stringify(
-      { success: true, content, lines: content.split('\n').length, preview: content.substring(0, 500) },
+      { success: true, content, missing, lines: content.split('\n').length, preview: content.substring(0, 500) },
       null,
       2
     );

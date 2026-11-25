@@ -4,7 +4,7 @@
   "description": "{{skillDescription}}",
   "main": "index.js",
   "engines": {
-    "node": ">={{nodeVersion}}0.0"
+    "node": ">={{nodeMinVersion}}"
   },
   "scripts": {
     "prepare": "lefthook install",
@@ -26,7 +26,7 @@
     {{^hasYamlLinting}}
     "lint:yaml": "echo '✓ YAML linting via yamllint (install separately if needed)'",
     {{/hasYamlLinting}}
-    "lint:all": "npm run lint:js && npm run lint:md"{{#hasYamlLinting}} && npm run lint:yaml{{/hasYamlLinting}}
+    "lint:all": "npm run lint:js && npm run lint:md{{#hasYamlLinting}} && npm run lint:yaml{{/hasYamlLinting}}"
     {{#hasMigrationApi}}
     ,
     "migrate:budget": "node skill/api/migrate-with-budget.js"
