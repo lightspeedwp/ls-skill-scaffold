@@ -103,7 +103,7 @@ describe('variables (SC-D01)', () => {
       nodeVersion: '24',
       nodeMinVersion: '24.0.0',
       testCoverageThreshold: 80,
-      branchPattern: '^(wp-db-|skill-|main|develop|master)$',
+      branchPattern: '^(wp-db-|skill-|main|master)$',
       branch_prefix: 'skill-',
       hasBatsTests: false,
       hasYamlLinting: false,

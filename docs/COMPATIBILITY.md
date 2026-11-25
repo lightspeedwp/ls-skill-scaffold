@@ -26,7 +26,7 @@ Status: **agreed 18 November 2026** (Warwick). Rows marked *To do* describe the 
 | `min_node_version` | `24.0.0` | `nodeMinVersion` (as given), `nodeVersion` (major only, for `{{nodeVersion}}.x` in workflows) | Works |
 | `coverage_threshold` | `80` | `testCoverageThreshold` | Works |
 | `branch_prefix` | `skill-` | `branch_prefix` | Works |
-| `branch_pattern` | `^(wp-db-\|skill-\|main\|develop\|master)$` | `branchPattern` | Works |
+| `branch_pattern` | `^(wp-db-\|skill-\|main\|master)$` | `branchPattern` | Works |
 | `has_bats` | `false` | `hasBatsTests` | Works |
 | `has_shell` | `false` | `has_shell`, `hasShellScripts` | Works |
 | `has_yaml` | `false` | `has_yaml`, `hasYamlLinting` | Works |
