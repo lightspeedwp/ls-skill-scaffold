@@ -11,7 +11,7 @@
     "code_lines": false,
     "headers": false,
     "headers_line_length": 120,
-    "tables": false
+    "tables": false,
   },
 
   // No bare URLs
@@ -36,5 +36,5 @@
   "MD060": false,
 
   // Blanks around fences - sometimes intentional
-  "MD031": false
+  "MD031": false,
 }

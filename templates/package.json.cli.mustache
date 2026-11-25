@@ -10,7 +10,7 @@
   "scripts": {
     "prepare": "lefthook install",
     "start": "node skill/index.js",
-    "test": "jest --coverage",
+    "test": "jest --coverage --passWithNoTests",
     "test:watch": "jest --watch",
     "test:verbose": "jest --verbose --coverage",
     {{#hasBatsTests}}
@@ -18,7 +18,7 @@
     {{/hasBatsTests}}
     "test:all": "npm run test{{#hasBatsTests}} && npm run test:bats{{/hasBatsTests}}",
     "lint:js": "eslint .",
-    "lint:md": "markdownlint '**/*.md'",
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "lint:all": "npm run lint:js && npm run lint:md{{#hasShellScripts}} && npm run lint:sh{{/hasShellScripts}}",
     {{#hasShellScripts}}
     "lint:sh": "shellcheck skill/scripts/*.sh",

@@ -2,6 +2,8 @@
  * ESLint flat configuration for {{skillName}}.
  *
  * ESLint 10 reads only eslint.config.* files; .eslintrc files are ignored.
+ * Formatting (indentation, quotes, semicolons, commas, line length) is left to
+ * Prettier, so the two never disagree.
  *
  * Variables:
  * - useEsModules: treat .js files as ES modules (default: false, CommonJS)
@@ -30,18 +32,12 @@ module.exports = [
       },
     },
     rules: {
-      'comma-dangle': ['error', 'always-multiline'],
       curly: ['error', 'all'],
       eqeqeq: ['error', 'always'],
-      indent: ['error', 2],
-      'linebreak-style': ['error', 'unix'],
       'no-console': 'off',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'prefer-const': 'warn',
-      quotes: ['error', 'single', { avoidEscape: true }],
-      semi: ['error', 'always'],
       {{#strictMode}}
-      'max-len': ['warn', { code: 120 }],
       'no-implicit-coercion': 'error',
       'no-param-reassign': 'warn',
       'no-var': 'error',

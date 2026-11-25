@@ -23,9 +23,13 @@ include_paths:
   - '**/*.mjs'
   - '**/*.json'
   - '**/*.md'
-  {{#has_shell}}- '**/*.sh'{{/has_shell}}
-  {{#has_yaml}}- '**/*.yml'
-  - '**/*.yaml'{{/has_yaml}}
+{{#has_shell}}
+  - '**/*.sh'
+{{/has_shell}}
+{{#has_yaml}}
+  - '**/*.yml'
+  - '**/*.yaml'
+{{/has_yaml}}
 
 exclude_paths:
   - '**/*.test.js'
@@ -53,11 +57,14 @@ linting_rules:
     - prettier
   markdown:
     - markdownlint
-  {{#has_shell}}shell:
+{{#has_shell}}
+  shell:
     - shellcheck
-  {{/has_shell}}{{#has_yaml}}yaml:
+{{/has_shell}}
+{{#has_yaml}}
+  yaml:
     - yamllint
-  {{/has_yaml}}
+{{/has_yaml}}
 
 summarization:
   generate_pr_summary: true
@@ -83,4 +90,6 @@ custom_instructions: |
   2. Documentation completeness
   3. Security and best practices
   4. Test coverage
-  {{#has_shell}}5. Shell script correctness{{/has_shell}}
+{{#has_shell}}
+  5. Shell script correctness
+{{/has_shell}}

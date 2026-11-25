@@ -50,15 +50,14 @@ Phase 1 delivers 5 essential Mustache templates covering 90% of LightSpeed skill
    - Coverage is collected from the skill's own JavaScript, not from the test files
    - Default: 80% coverage for branches, functions, lines, statements
 
-3. **CLAUDE.md.mustache** (266 lines)
-   - Complete Claude Code development guide with best practices
-   - Variables: `skillName`, `skillSlug`, `skillDescription`, `authorName`, etc.
-   - Adaptive sections for shell scripts, BATS tests, production dependencies
+3. **CLAUDE.md.mustache** (phase 2)
+   - Short pointer file for Claude Code: SKILL.md to use the skill, AGENTS.md to change it
+   - Variables: `skillSlug`
 
-4. **README.md.mustache** (228 lines)
-   - Comprehensive project README with features, installation, usage examples
-   - Variables: `skillName`, `features[]`, `usageExamples[]`, `quickStartCommand`
-   - Adaptive for CLI skills, validation skills, documentation skills
+4. **README.md.mustache** (phase 2)
+   - Install, usage, requirements, development checks and licence
+   - Variables: `skillName`, `skillSlug`, `skillDescription`, `quickStartCommand`, `nodeVersion`, `license`,
+     `authorName`, `hasShellScripts`, `hasBatsTests`, `customRequirements[]`
 
 5. **lefthook.yml.mustache** (51 lines)
    - Git hooks configuration with quality gates (prettier, ESLint, Jest, ShellCheck)
@@ -107,7 +106,8 @@ Phase 2 extends skill-scaffold with 5 additional Mustache templates covering 95%
 ### Templates Included (5 extended)
 
 1. **eslint.config.cjs.mustache** (Phase 1) — ESLint 10 flat config; `strictMode` adds the stricter rules and `hasBrowserGlobals` allows browser globals
-2. **SKILL.md.mustache** — Skill documentation (250+ lines, adaptive)
+2. **SKILL.md.mustache** — Skill skeleton for Claude: when to use it, workflow, examples, troubleshooting
+   - **README.md.mustache**, **CLAUDE.md.mustache** and **AGENTS.md.mustache** (contributor guide) are also phase 2
 3. **.editorconfig.mustache** — Editor standards
 4. **.github/workflows/ci.yml.mustache** — GitHub Actions CI/CD
 5. **.markdownlint.json.mustache** — Markdown linting rules
@@ -143,8 +143,6 @@ Phase 3 adds 14 additional templates: 8 variants for adapting to different skill
 ### B. Specialized Templates (6 templates)
 
 **Documentation**
-- `AGENTS.md.mustache` — Agent capabilities and usage guide
-- `PROMPT_TEMPLATE.md.mustache` — Prompt definition and examples
 
 **Workflows**
 - `.github/workflows/release.yml.mustache` — Release automation with npm publish

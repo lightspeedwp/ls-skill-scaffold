@@ -201,6 +201,51 @@ describe('templates (SC-F06)', () => {
     }
   });
 
+  it('keeps tests and the lockfile in Git, and ignores coverage', () => {
+    const lines = render('.gitignore.mustache', minimal).content.split('\n');
+    for (const kept of ['*.test.js', '*.spec.js', 'package-lock.json', '.claude/', 'references/']) {
+      expect(lines).not.toContain(kept);
+    }
+    expect(lines).toEqual(expect.arrayContaining(['coverage/', 'node_modules/', '.claude/settings.local.json']));
+  });
+
+  it.each(['package.json.mustache', 'package.json.cli.mustache', 'package.json.validation.mustache', 'package.json.docs.mustache'])(
+    '%s lints Markdown without node_modules',
+    (template) => {
+      const pkg = JSON.parse(render(template, { ...minimal, ...askedFor }).content);
+      expect(pkg.scripts['lint:md']).toBe("markdownlint '**/*.md' --ignore node_modules");
+    }
+  );
+
+  it('leaves formatting to Prettier, so ESLint and Prettier never disagree', () => {
+    const content = render('eslint.config.cjs.mustache', { ...minimal, strictMode: true }).content;
+    for (const rule of ['indent:', 'quotes:', 'semi:', "'comma-dangle'", "'max-len'", "'linebreak-style'"]) {
+      expect({ rule, present: content.includes(rule) }).toEqual({ rule, present: false });
+    }
+  });
+
+  it('stages the files the Prettier hook reformats', () => {
+    expect(render('lefthook.yml.mustache', minimal).content).toMatch(/prettier --write \{staged_files\}\n\s+stage_fixed: true/);
+  });
+
+  it('generates README.md, CLAUDE.md and AGENTS.md in phase 2, linking only to files it generates', () => {
+    const phase2 = client.filterTemplates('cli', [2]).map((t) => t.target);
+    expect(phase2).toEqual(expect.arrayContaining(['SKILL.md', 'README.md', 'CLAUDE.md', 'AGENTS.md', '__tests__/skill.test.js']));
+    const pkg = JSON.parse(render('package.json.mustache', { ...minimal, ...askedFor }).content);
+    expect(pkg.scripts.test).toBe('jest --coverage --passWithNoTests');
+    expect(client.getAllTemplates().map((t) => t.target)).not.toContain('PROMPT_TEMPLATE.md');
+    const generated = new Set(client.getAllTemplates().map((t) => t.target));
+    for (const doc of ['README.md.mustache', 'CLAUDE.md.mustache', 'AGENTS.md.mustache']) {
+      const { content, missing } = render(doc, { ...minimal, ...askedFor, has_shell: true, has_bats: true }, 'cli');
+      expect({ doc, missing }).toEqual({ doc, missing: [] });
+      for (const [, href] of content.matchAll(/\]\(([^)#\s]+)\)/g)) {
+        if (/^https?:/.test(href)) continue;
+        expect({ doc, href, generated: generated.has(href) }).toEqual({ doc, href, generated: true });
+      }
+      expect(content).not.toMatch(/Settings → Skills|npm install ls-|PROMPT_TEMPLATE/);
+    }
+  });
+
   it('gives SKILL.md the frontmatter Claude Code needs to load it', () => {
     const { content } = render('SKILL.md.mustache', { ...minimal, ...askedFor, repo_description: 'Moves: "databases"' }, 'cli');
     expect(content.startsWith('---\nname: wp-db-migrate\ndescription: >-\n  Moves: "databases"\n---\n')).toBe(true);

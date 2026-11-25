@@ -77,7 +77,6 @@ npm run lint:all
 | **Package.json Variants** | package.json.cli, .validation, .docs | CLI, validation, documentation skills |
 | **Workflow Variants** | test.yml, test-matrix.yml | Single node, multi-node testing |
 | **Specialized Workflows** | release.yml, security.yml | Release automation, security scanning |
-| **Documentation** | AGENTS.md, PROMPT_TEMPLATE.md | Agent guides, prompt definitions |
 | **Ignore Files** | .npmignore, .gitignore | Package and repo standards |
 
 ### Phase 4: MCP Integration (Planning) 🤖

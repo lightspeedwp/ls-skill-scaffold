@@ -53,20 +53,16 @@ These describe what the new skill does, so they cannot be worked out. In convers
 
 | Placeholder(s) | Used in |
 |---|---|
-| `features` | `SKILL.md`, `README.md` |
-| `usageExamples` (`usageTitle`, `usageDescription`, `usageCommand`, `usageCode`) | `SKILL.md`, `AGENTS.md` |
-| `howItWorks`, `installation`, `advancedUsage`, `troubleshooting`, `faq` | `README.md`, `SKILL.md` |
-| `agentPurpose`, `agentCapabilities`, `agentLimitations`, `agentUsageExamples` | agent skill type only |
-| `promptPurpose`, `promptVariables`, `promptExamples` | `PROMPT_TEMPLATE.md` only |
+| `features` (list of strings: when to use the skill) | `SKILL.md` |
+| `usageExamples` (`usageTitle`, `usageDescription`, `usageCode`) | `SKILL.md` |
+| `howItWorks` (Markdown workflow steps), `troubleshooting` (`troubleTitle`, `troubleSymptom`, `troubleSolution`) | `SKILL.md` |
 | `license` | `README.md`, `package.json` (no default: see open questions) |
 | `testCommand` | `.github/workflows/ci.yml` (no source in the config) |
 | `lineLength` | `.markdownlint.json` (no source in the config) |
-| `promptName` | `PROMPT_TEMPLATE.md` |
-| `skillType` | `AGENTS.md`, `PROMPT_TEMPLATE.md`, `SKILL.md`: worked out when `skill_type` is sent, asked for otherwise |
 
 ### Feature flags with no source
 
-These switch optional template sections on or off. They default to `false` (the section is left out) unless the caller sends them: `hasSkillDirectory`, `hasPluginDirectory`, `hasProductionDeps`, `hasAPI`, `hasSetupScript`, `useEsModules`, `strictMode`, `hasBrowserGlobals`, `skipTests`, `excludeTests`, `includeCoverage`, `skillDocPath`, `licenseText`, `acknowledgments`, `customRequirements`.
+These switch optional template sections on or off. They default to `false` (the section is left out) unless the caller sends them: `hasProductionDeps`, `hasAPI`, `useEsModules`, `strictMode`, `hasBrowserGlobals`, `skipTests`, `excludeTests`, `customRequirements`.
 
 ### Must pass through unchanged
 
@@ -136,6 +132,6 @@ Callers that page through `list_templates` keep requesting pages until `page` eq
 
 ## Open questions
 
-- **`features` has two shapes.** `SKILL.md.mustache` expects a list of strings (`{{.}}`). `README.md.mustache` expects a list of objects with `title` and `description`. The renderer needs one input shape. Proposal: callers send objects, and `SKILL.md` renders `title`.
+- **`features` has one shape.** Only `SKILL.md.mustache` uses it, as a list of strings; `README.md.mustache` no longer does.
 - **Licence.** This repository's `LICENSE` file is GPL-3.0, but `skill.json` and `.skill` say MIT. Until that is settled, `license` has no default and is always asked for.
 - **`testCommand` and `lineLength`** have no source in the config, so every apply has to send them. Defaults (`npm test`, `120`) would be easy to add to `optionalVariables`, but that is a contract change for review, not part of SC-F06.

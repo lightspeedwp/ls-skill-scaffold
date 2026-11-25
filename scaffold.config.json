@@ -39,6 +39,27 @@
       "phase": 2
     },
     {
+      "source": "templates/README.md.mustache",
+      "target": "README.md",
+      "overwrite": false,
+      "required": false,
+      "phase": 2
+    },
+    {
+      "source": "templates/CLAUDE.md.mustache",
+      "target": "CLAUDE.md",
+      "overwrite": false,
+      "required": false,
+      "phase": 2
+    },
+    {
+      "source": "templates/AGENTS.md.mustache",
+      "target": "AGENTS.md",
+      "overwrite": false,
+      "required": false,
+      "phase": 2
+    },
+    {
       "source": "templates/.editorconfig.mustache",
       "target": ".editorconfig",
       "overwrite": true,
@@ -132,22 +153,6 @@
       "variant": "workflow:security"
     },
     {
-      "source": "templates/AGENTS.md.mustache",
-      "target": "AGENTS.md",
-      "overwrite": false,
-      "required": false,
-      "phase": 3,
-      "specialized": true
-    },
-    {
-      "source": "templates/PROMPT_TEMPLATE.md.mustache",
-      "target": "PROMPT_TEMPLATE.md",
-      "overwrite": false,
-      "required": false,
-      "phase": 3,
-      "specialized": true
-    },
-    {
       "source": "templates/.npmignore.mustache",
       "target": ".npmignore",
       "overwrite": true,
@@ -176,6 +181,12 @@
       "target": ".markdownlint.jsonc",
       "required": true,
       "phase": 1
+    },
+    {
+      "source": "templates/__tests__/skill.test.js",
+      "target": "__tests__/skill.test.js",
+      "required": false,
+      "phase": 2
     }
   ],
   "requiredVariables": [

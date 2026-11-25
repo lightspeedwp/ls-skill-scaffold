@@ -1,138 +1,41 @@
-# {{skillName}}: Agents & Capabilities
+# Working on {{skillName}}
 
-{{skillDescription}}
+This file is for people and agents changing the skill. To use the skill, see [SKILL.md](SKILL.md) and
+[README.md](README.md).
 
----
+## What is in the repository
 
-## Agent Overview
+| Path                | Purpose                                                         |
+| ------------------- | --------------------------------------------------------------- |
+| `SKILL.md`          | The skill: frontmatter and the instructions Claude follows      |
+| `README.md`         | Install and usage for people                                    |
+| `CLAUDE.md`         | Pointers for Claude Code when it opens this repository          |
+| `__tests__/`        | Jest tests                                                      |
+| `eslint.config.cjs` | ESLint 10 flat config; Prettier handles formatting              |
+| `lefthook.yml`      | Git hooks: lint and test before commit, branch name before push |
+{{#hasShellScripts}}
+| `skill/scripts/`    | Shell scripts the skill runs; checked by ShellCheck             |
+{{/hasShellScripts}}
+{{#hasBatsTests}}
+| `tests/`            | BATS integration tests                                          |
+{{/hasBatsTests}}
 
-This skill exposes one or more agents that extend Claude Code's capabilities for {{skillType}} workflows.
+The tooling comes from [ls-skill-scaffold](https://github.com/lightspeedwp/ls-skill-scaffold). Change shared
+tooling there first, then bring it here.
 
-### Primary Agent
+## Rules for changes
 
-**Name:** `{{skillSlug}}-agent`
+- Keep the frontmatter `description` in `SKILL.md` under 1,024 characters. Say when to use the skill and when
+  not to.
+- Add or update an eval in `evals/` for any change in behaviour.
+- Add tests for new code. Coverage below {{testCoverageThreshold}}% fails `npm test`.
 
-**Purpose:**
-{{#agentPurpose}}{{agentPurpose}}{{/agentPurpose}}{{^agentPurpose}}Automate {{skillSlug}} workflows within Claude Code{{/agentPurpose}}
+## Checks
 
-**Version:** {{version}}
-
----
-
-## Agent Capabilities
-
-{{#agentCapabilities}}
-### {{capabilityName}}
-
-{{capabilityDescription}}
-
-{{/agentCapabilities}}
-
-{{^agentCapabilities}}
-Agents provide automated support for:
-- Task analysis and validation
-- Configuration management
-- Integration with existing tools
-- Reporting and documentation
-{{/agentCapabilities}}
-
----
-
-## How to Use Agents
-
-### In Claude Code
-
-Invoke the agent using the Claude Code interface:
-
-```
-/{{skillSlug}}-agent [task description]
+```bash
+npm install
+npm run lint:all
+npm test
 ```
 
-### With Custom Prompts
-
-Agents inherit project context from CLAUDE.md. Customize agent behavior by:
-
-1. **Setting environment variables** in `.env` or shell
-2. **Providing input files** in the working directory
-3. **Specifying options** in the agent invocation
-
-### Example Usage
-
-{{#agentUsageExamples}}
-#### {{usageTitle}}
-
-```
-/{{skillSlug}}-agent {{usageCommand}}
-```
-
-{{usageDescription}}
-
-{{/agentUsageExamples}}
-
-{{^agentUsageExamples}}
-```
-# Basic usage
-/{{skillSlug}}-agent analyze ./path/to/target
-
-# With options
-/{{skillSlug}}-agent analyze ./path/to/target --strict --verbose
-
-# Check status
-/{{skillSlug}}-agent status
-```
-{{/agentUsageExamples}}
-
----
-
-## Agent Limitations
-
-{{#agentLimitations}}
-- {{.}}
-{{/agentLimitations}}
-
-{{^agentLimitations}}
-- Agents operate within the Claude Code sandbox
-- External API calls require proper authentication
-- Large file processing may timeout (100+ MB)
-- Real-time streaming is not supported
-{{/agentLimitations}}
-
----
-
-## Integration with Workflows
-
-Agents work best when:
-- Part of a multi-step Claude Code workflow
-- Given clear, structured input
-- Used with adequate context (CLAUDE.md, docs/)
-- Combined with automated testing
-
----
-
-## Troubleshooting
-
-### Agent not responding
-
-1. Check agent is installed: `npm list {{skillSlug}}`
-2. Verify environment variables are set
-3. Check CLAUDE.md for configuration
-4. Review agent logs in terminal
-
-### Performance issues
-
-- Use `--verbose` flag to debug
-- Reduce input file size
-- Check available disk space
-- Review memory usage
-
----
-
-## Related Documentation
-
-- [CLAUDE.md](./CLAUDE.md) — Project configuration
-- [SKILL.md](./SKILL.md) — Skill overview
-- [README.md](./README.md) — Quick start guide
-
----
-
-**Made with ♥ by LightSpeed | {{version}} | {{license}} License**
+Branch names follow `{type}/{scope}-{title}`, for example `feat/skill-add-preview`.
