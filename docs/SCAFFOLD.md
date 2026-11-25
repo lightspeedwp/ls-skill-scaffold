@@ -179,10 +179,10 @@ npm install -g mustache
 cd /path/to/your/skill-repo
 
 # Clone the scaffold
-git clone https://github.com/lightspeedwp/skill-scaffold.git /tmp/skill-scaffold
+git clone https://github.com/lightspeedwp/ls-skill-scaffold.git /tmp/ls-skill-scaffold
 
 # Apply scaffold
-bash /tmp/skill-scaffold/scripts/apply-scaffold.sh \
+bash /tmp/ls-skill-scaffold/scripts/apply-scaffold.sh \
   --repo-name my-skill \
   --description "My skill description" \
   --author "Your Name" \
@@ -191,7 +191,7 @@ bash /tmp/skill-scaffold/scripts/apply-scaffold.sh \
 
 #### Option 2: Dry Run (Preview Changes)
 ```bash
-bash /tmp/skill-scaffold/scripts/apply-scaffold.sh \
+bash /tmp/ls-skill-scaffold/scripts/apply-scaffold.sh \
   --repo-name my-skill \
   --description "My skill" \
   --dry-run
@@ -199,7 +199,7 @@ bash /tmp/skill-scaffold/scripts/apply-scaffold.sh \
 
 #### Option 3: With Custom Options
 ```bash
-bash /tmp/skill-scaffold/scripts/apply-scaffold.sh \
+bash /tmp/ls-skill-scaffold/scripts/apply-scaffold.sh \
   --repo-name my-skill \
   --description "My skill" \
   --coverage 75 \

@@ -560,7 +560,7 @@ npx @modelcontextprotocol/inspector node /path/to/ls-skill-scaffold/mcp/server/s
 ## Support & Feedback
 
 For issues, feature requests, or contributions:
-- Check the [skill-scaffold repository](https://github.com/lightspeedwp/skill-scaffold)
+- Check the [skill-scaffold repository](https://github.com/lightspeedwp/ls-skill-scaffold)
 - Review `mcp/server/README.md` for development details
 - Test with MCP Inspector: `npx @modelcontextprotocol/inspector`
 
