@@ -31,7 +31,7 @@ Options:
   -a, --author AUTHOR           Author name (default: Ash Shaw)
   -v, --version VERSION         Package version (default: 1.0.0)
   --coverage PERCENT            Jest coverage threshold (default: 80)
-  --branch-pattern PATTERN      Branch validation regex (default: ^(wp-db-|skill-|main|master)$)
+  --branch-pattern PATTERN      Branch validation regex (default: LightSpeed {type}/{scope}-{title})
   --dry-run                     Show what would be applied without changes
   --help                        Show this help message
 
@@ -125,7 +125,7 @@ fi
 AUTHOR="${AUTHOR:-Ash Shaw}"
 VERSION="${VERSION:-1.0.0}"
 COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-80}"
-BRANCH_PATTERN="${BRANCH_PATTERN:-^(wp-db-|skill-|main|master)$}"
+BRANCH_PATTERN="${BRANCH_PATTERN:-^(main|master|(dependabot|renovate)/.+|release/v?[0-9]+[.][0-9]+[.][0-9]+(-[a-z0-9]+)*|(feat|fix|hotfix|release|refactor|chore|task|doc|docs|test|perf|ci|build|deps|security|revert|research|design|a11y|ux|i18n|ops|proto|ds|api|schema|telemetry|content|seo|config|migrate|qa|uat|audit|codex|aiops|automation|epic)/[a-z0-9]+(-[a-z0-9]+)+)$}"
 
 # Validate target directory
 if [[ ! -d "$TARGET_DIR" ]]; then
@@ -190,7 +190,7 @@ for template in "$SCAFFOLD_DIR"/templates/*.mustache; do
 done
 
 # Copy non-template files
-for file in .eslintrc.cjs .prettierrc .markdownlint.jsonc; do
+for file in .prettierrc .markdownlint.jsonc; do
   source="$SCAFFOLD_DIR/templates/$file"
   if [[ -f "$source" ]]; then
     target="$TARGET_DIR/$file"

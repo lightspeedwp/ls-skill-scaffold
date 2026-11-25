@@ -17,11 +17,11 @@
     "test:bats": "bats tests/**/*.bats 2>/dev/null || echo '✓ No BATS tests yet'",
     {{/hasBatsTests}}
     "test:all": "npm run test{{#hasBatsTests}} && npm run test:bats{{/hasBatsTests}}",
-    "lint:js": "eslint skill/ --ext .js,.cjs,.mjs",
+    "lint:js": "eslint .",
     "lint:md": "markdownlint '**/*.md'",
-    "lint:all": "npm run lint:js && npm run lint:md",
+    "lint:all": "npm run lint:js && npm run lint:md{{#hasShellScripts}} && npm run lint:sh{{/hasShellScripts}}",
     {{#hasShellScripts}}
-    "lint:sh": "shellcheck skill/scripts/*.sh || echo '✓ Shell scripts valid'",
+    "lint:sh": "shellcheck skill/scripts/*.sh",
     {{/hasShellScripts}}
     "validate": "npm run lint:all && npm run test:all"
   },
@@ -29,7 +29,9 @@
     "@anthropic-ai/sdk": "^0.24.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "eslint": "^10.14.0",
+    "globals": "^17.14.0",
     "jest": "^29.7.0",
     "prettier": "^3.2.5",
     "markdownlint-cli": "^0.39.0",

@@ -66,7 +66,7 @@ These describe what the new skill does, so they cannot be worked out. In convers
 
 ### Feature flags with no source
 
-These switch optional template sections on or off. They default to `false` (the section is left out) unless the caller sends them: `hasSkillDirectory`, `hasPluginDirectory`, `hasProductionDeps`, `hasAPI`, `hasSetupScript`, `useEsModules`, `strictMode`, `skipTests`, `excludeTests`, `includeCoverage`, `includeSkriptCoverage`, `skillDocPath`, `licenseText`, `acknowledgments`, `customRequirements`.
+These switch optional template sections on or off. They default to `false` (the section is left out) unless the caller sends them: `hasSkillDirectory`, `hasPluginDirectory`, `hasProductionDeps`, `hasAPI`, `hasSetupScript`, `useEsModules`, `strictMode`, `hasBrowserGlobals`, `skipTests`, `excludeTests`, `includeCoverage`, `skillDocPath`, `licenseText`, `acknowledgments`, `customRequirements`.
 
 ### Must pass through unchanged
 
@@ -75,13 +75,13 @@ GitHub Actions expressions are not scaffold variables. The renderer leaves every
 ### How values are written
 
 - Values are written as they are. Output is not HTML-escaped, and `$&` or `$1` in a value stays literal.
-- In JSON targets (`package.json` and its variants, `.eslintrc.json`, `.eslintrc.strict`, `.eslintrc.browser`, `.markdownlint.json`), values are JSON-escaped, and the rendered file must parse. A file that does not parse is an error, and nothing is written.
+- In JSON targets (`package.json` and its variants, `.markdownlint.json`), values are JSON-escaped, and the rendered file must parse. A file that does not parse is an error, and nothing is written.
 - A plain `{{name}}` with no value is never written as an empty string. Dry run lists it in `errors[]` (`field`, `file`), and apply writes nothing.
 - The renderer supports plain Mustache only: names, sections over booleans, lists and objects, inverted sections, `{{.}}`, dotted names and comments. Filter syntax (`{{x | default 'y'}}`), partials and delimiter changes are refused with an error.
 
 ### Static files
 
-The `files` entries in `scaffold.config.json` (`.eslintrc.cjs`, `.prettierrc`, `.markdownlint.jsonc`) are planned and copied byte for byte with the templates of their phase. The manifest gives them no `overwrite` flag, so an existing copy is kept unless the request sets `overwrite: true` (SC-D02). `list_templates` lists them with `static: true`.
+The `files` entries in `scaffold.config.json` (`.prettierrc`, `.markdownlint.jsonc`) are planned and copied byte for byte with the templates of their phase. The manifest gives them no `overwrite` flag, so an existing copy is kept unless the request sets `overwrite: true` (SC-D02). `list_templates` lists them with `static: true`.
 
 ## 2. MCP tool arguments
 

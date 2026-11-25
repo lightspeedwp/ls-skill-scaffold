@@ -103,7 +103,7 @@ describe('variables (SC-D01)', () => {
       nodeVersion: '24',
       nodeMinVersion: '24.0.0',
       testCoverageThreshold: 80,
-      branchPattern: '^(wp-db-|skill-|main|master)$',
+      branchPattern: String.raw`^(main|master|(dependabot|renovate)/.+|release/v?[0-9]+[.][0-9]+[.][0-9]+(-[a-z0-9]+)*|(feat|fix|hotfix|release|refactor|chore|task|doc|docs|test|perf|ci|build|deps|security|revert|research|design|a11y|ux|i18n|ops|proto|ds|api|schema|telemetry|content|seo|config|migrate|qa|uat|audit|codex|aiops|automation|epic)/[a-z0-9]+(-[a-z0-9]+)+)$`,
       branch_prefix: 'skill-',
       hasBatsTests: false,
       hasYamlLinting: false,
@@ -153,6 +153,54 @@ describe('templates (SC-F06)', () => {
     }
   });
 
+  it('measures coverage on the skill code, not on the tests', () => {
+    const pkg = JSON.parse(render('package.json.mustache', { ...minimal, license: 'MIT' }).content);
+    expect(pkg.jest.collectCoverageFrom).toEqual(expect.arrayContaining(['**/*.{js,cjs,mjs}', '!**/__tests__/**']));
+    expect(pkg.jest.collectCoverageFrom).not.toContain('__tests__/**/*.test.js');
+    for (const t of ['jest.config.js.strict.mustache', 'jest.config.js.esm.mustache']) {
+      expect(render(t, { ...minimal, ...askedFor }).content).not.toContain("'__tests__/**/*.test.js',\n    '");
+    }
+  });
+
+  it.each(['package.json.mustache', 'package.json.cli.mustache', 'package.json.validation.mustache'])(
+    '%s lints with ESLint 10 flat config',
+    (template) => {
+      const pkg = JSON.parse(render(template, { ...minimal, ...askedFor }).content);
+      expect(pkg.scripts['lint:js']).toBe('eslint .');
+      expect(pkg.devDependencies).toHaveProperty('@eslint/js');
+      expect(pkg.devDependencies).toHaveProperty('globals');
+    }
+  );
+
+  it('renders eslint.config.cjs with the strict and browser options only when asked', () => {
+    const plain = render('eslint.config.cjs.mustache', minimal).content;
+    expect(plain).toContain("sourceType: 'commonjs'");
+    expect(plain).not.toContain('globals.browser');
+    expect(plain).not.toContain('no-var');
+    const full = render('eslint.config.cjs.mustache', { ...minimal, strictMode: true, hasBrowserGlobals: true, useEsModules: true }).content;
+    expect(full).toContain('...globals.browser');
+    expect(full).toContain("'no-var': 'error'");
+    expect(full).toContain("sourceType: 'module'");
+  });
+
+  it('checks only staged shell scripts, and lets shellcheck fail the commit', () => {
+    const content = render('lefthook.yml.mustache', { ...minimal, has_shell: true }).content;
+    expect(content).toContain('        shellcheck {staged_files}\n');
+    expect(content).toContain('shellcheck is not installed');
+    expect(content).not.toContain('|| true');
+  });
+
+  it('accepts LightSpeed branch names in the pre-push hook and rejects others', () => {
+    const content = render('lefthook.yml.mustache', minimal).content;
+    const pattern = new RegExp(content.match(/PATTERN='([^']+)'/)![1]);
+    for (const ok of ['main', 'feat/blocks-add-hero', 'fix/import-null-check', 'release/v1.2.0', 'dependabot/npm/jest-30']) {
+      expect({ ok, valid: pattern.test(ok) }).toEqual({ ok, valid: true });
+    }
+    for (const bad of ['develop', 'wp-db-', 'feature/x', 'feat/nohyphen', 'Feat/blocks-add', 'my-branch']) {
+      expect({ bad, valid: pattern.test(bad) }).toEqual({ bad, valid: false });
+    }
+  });
+
   it('gives SKILL.md the frontmatter Claude Code needs to load it', () => {
     const { content } = render('SKILL.md.mustache', { ...minimal, ...askedFor, repo_description: 'Moves: "databases"' }, 'cli');
     expect(content.startsWith('---\nname: wp-db-migrate\ndescription: >-\n  Moves: "databases"\n---\n')).toBe(true);
@@ -170,7 +218,7 @@ describe('static files and missing values over the server', () => {
   const json = async (name: string, args: Record<string, unknown>) =>
     JSON.parse(((await mcp.callTool({ name, arguments: args })) as { content: Array<{ text: string }> }).content[0].text);
 
-  const staticFiles = ['.eslintrc.cjs', '.markdownlint.jsonc', '.prettierrc'];
+  const staticFiles = ['.markdownlint.jsonc', '.prettierrc'];
 
   it('copies the manifest files byte for byte and keeps an existing one', async () => {
     const root = target();
@@ -180,11 +228,11 @@ describe('static files and missing values over the server', () => {
     const preview = await json('scaffold_dry_run', request);
     expect(preview.success).toBe(true);
     const planned = Object.fromEntries(preview.proposedChanges.map((c: { file: string; action: string }) => [c.file, c.action]));
-    expect(planned).toMatchObject({ '.eslintrc.cjs': 'create', '.markdownlint.jsonc': 'create', '.prettierrc': 'skip' });
+    expect(planned).toMatchObject({ 'eslint.config.cjs': 'create', '.markdownlint.jsonc': 'create', '.prettierrc': 'skip' });
 
     const applied = await json('scaffold_apply', request);
     expect(applied.success).toBe(true);
-    for (const file of ['.eslintrc.cjs', '.markdownlint.jsonc']) {
+    for (const file of ['.markdownlint.jsonc']) {
       expect(readFileSync(join(root, file), 'utf-8')).toBe(readFileSync(join(SCAFFOLD, 'templates', file), 'utf-8'));
     }
     expect(readFileSync(join(root, '.prettierrc'), 'utf-8')).toBe('custom\n');

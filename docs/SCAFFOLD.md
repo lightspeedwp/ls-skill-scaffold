@@ -8,7 +8,7 @@ Professional configuration scaffold for WordPress/Claude skills. Applies enterpr
 - **package.json** — Dependencies, scripts, Jest configuration
 - **lefthook.yml** — Git hooks (pre-commit, pre-push validation)
 - **.coderabbit.yaml** — AI-powered code review (GPT-4o)
-- **.eslintrc.cjs** — JavaScript linting rules
+- **eslint.config.cjs** — JavaScript linting rules (ESLint 10 flat config)
 - **.prettierrc** — Code formatting standards
 - **.markdownlint.jsonc** — Markdown validation
 
@@ -46,7 +46,8 @@ Phase 1 delivers 5 essential Mustache templates covering 90% of LightSpeed skill
 
 2. **jest.config.js.mustache** (46 lines)
    - Jest testing configuration with configurable coverage thresholds
-   - Variables: `testCoverageThreshold`, `useEsModules`, `includeSkriptCoverage`
+   - Variables: `testCoverageThreshold`, `useEsModules`
+   - Coverage is collected from the skill's own JavaScript, not from the test files
    - Default: 80% coverage for branches, functions, lines, statements
 
 3. **CLAUDE.md.mustache** (266 lines)
@@ -105,7 +106,7 @@ Phase 2 extends skill-scaffold with 5 additional Mustache templates covering 95%
 
 ### Templates Included (5 extended)
 
-1. **.eslintrc.json.mustache** — ESLint configuration with strict/relaxed modes
+1. **eslint.config.cjs.mustache** (Phase 1) — ESLint 10 flat config; `strictMode` adds the stricter rules and `hasBrowserGlobals` allows browser globals
 2. **SKILL.md.mustache** — Skill documentation (250+ lines, adaptive)
 3. **.editorconfig.mustache** — Editor standards
 4. **.github/workflows/ci.yml.mustache** — GitHub Actions CI/CD
@@ -132,9 +133,8 @@ Phase 3 adds 14 additional templates: 8 variants for adapting to different skill
 - `package.json.validation.mustache` — Minimal deps, linting-focused
 - `package.json.docs.mustache` — Documentation skills, markdown-only
 
-**ESLint Variants** (2)
-- `.eslintrc.strict.mustache` — All rules error-level, 120 char line limit
-- `.eslintrc.browser.mustache` — Browser+Node mixed environment
+**ESLint options**
+- The `.eslintrc` variants were removed because ESLint 10 no longer reads `.eslintrc` files. Set `strictMode` or `hasBrowserGlobals` on `eslint.config.cjs.mustache` instead.
 
 **GitHub Workflow Variants** (2)
 - `.github/workflows/test.yml.mustache` — Test-only workflow (no lint job)
@@ -330,7 +330,7 @@ Edit `templates/package.json.mustache` to add/remove scripts or dependencies:
 ```
 
 ### Adjust Linting Rules
-- Edit `.eslintrc.cjs` to change ESLint rules
+- Edit `templates/eslint.config.cjs.mustache` to change ESLint rules
 - Edit `.prettierrc` to adjust formatting
 - Edit `.markdownlint.jsonc` to modify markdown rules
 
@@ -405,7 +405,7 @@ skill-scaffold/
 │   ├── package.json.mustache
 │   ├── lefthook.yml.mustache
 │   ├── .coderabbit.yaml.mustache
-│   ├── .eslintrc.cjs
+│   ├── eslint.config.cjs.mustache
 │   ├── .prettierrc
 │   └── .markdownlint.jsonc
 ├── scripts/
