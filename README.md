@@ -2,6 +2,8 @@
 
 🏗️ **Professional configuration scaffold for WordPress/Claude skills**
 
+Claude skill and MCP server that generates new skill repositories from Mustache templates (CLI, validation, documentation and agent types). It previews every file before writing and applies LightSpeed's standard tooling: ESLint, Prettier, Markdownlint, Jest, Lefthook hooks and CodeRabbit.
+
 Apply enterprise-grade tooling consistently across multiple skill repositories.
 
 ## Features
@@ -17,7 +19,7 @@ Apply enterprise-grade tooling consistently across multiple skill repositories.
 
 ```bash
 # Apply scaffold to current repository
-bash <(curl -s https://raw.githubusercontent.com/lightspeedwp/skill-scaffold/main/scripts/apply-scaffold.sh) \
+bash <(curl -s https://raw.githubusercontent.com/lightspeedwp/ls-skill-scaffold/main/scripts/apply-scaffold.sh) \
   --repo-name my-skill \
   --description "My skill description"
 ```
@@ -26,8 +28,8 @@ bash <(curl -s https://raw.githubusercontent.com/lightspeedwp/skill-scaffold/mai
 
 ### 1. Clone or Download
 ```bash
-git clone https://github.com/lightspeedwp/skill-scaffold.git
-cd skill-scaffold
+git clone https://github.com/lightspeedwp/ls-skill-scaffold.git
+cd ls-skill-scaffold
 ```
 
 ### 2. Apply to Your Repo
