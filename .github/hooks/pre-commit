@@ -8,7 +8,7 @@
 # 2. Changelog changes (Phase 2) — prevent commits with invalid CHANGELOG.md
 #
 # This hook automatically skips validation for:
-# - Protected branches (main, develop)
+# - The protected main branch
 # - Bot/automation branches (dependabot/*, renovate/*)
 # - Detached HEAD state (during rebase, merge, bisect operations)
 #
@@ -36,7 +36,7 @@ if [ -z "$BRANCH_NAME" ]; then
 fi
 
 # Skip validation for protected and bot branches
-if [ "$BRANCH_NAME" = "main" ] || [ "$BRANCH_NAME" = "develop" ] || \
+if [ "$BRANCH_NAME" = "main" ] || \
    [[ "$BRANCH_NAME" =~ ^(dependabot|renovate)/ ]]; then
   exit 0
 fi

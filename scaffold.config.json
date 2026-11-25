@@ -209,7 +209,7 @@
   "optionalVariables": {
     "min_node_version": "24.0.0",
     "coverage_threshold": 80,
-    "branch_pattern": "^(wp-db-|skill-|main|develop|master)$",
+    "branch_pattern": "^(wp-db-|skill-|main|master)$",
     "branch_prefix": "skill-",
     "has_jest": true,
     "has_bats": false,

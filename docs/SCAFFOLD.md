@@ -203,7 +203,7 @@ bash /tmp/ls-skill-scaffold/scripts/apply-scaffold.sh \
   --repo-name my-skill \
   --description "My skill" \
   --coverage 75 \
-  --branch-pattern "^(wp-|main|develop)$"
+  --branch-pattern "^(wp-|main)$"
 ```
 
 ## Configuration Options
@@ -221,7 +221,7 @@ bash /tmp/ls-skill-scaffold/scripts/apply-scaffold.sh \
 | `version` | Package version | `1.0.0` |
 | `coverage_threshold` | Jest coverage minimum % | `80` |
 | `min_node_version` | Minimum Node.js version | `24.0.0` |
-| `branch_pattern` | Branch validation regex | `^(wp-db-\|skill-\|main\|develop\|master)$` |
+| `branch_pattern` | Branch validation regex | `^(wp-db-\|skill-\|main\|master)$` |
 | `has_jest` | Include Jest tests | `true` |
 | `has_bats` | Include BATS shell tests | `false` |
 | `has_shell` | Include ShellCheck | `false` |
@@ -239,7 +239,7 @@ bash apply-scaffold.sh \
   --author "Ash Shaw" \
   --version 1.1.0 \
   --coverage 80 \
-  --branch-pattern "^(wp-db-|main|develop|master)$"
+  --branch-pattern "^(wp-db-|main|master)$"
 ```
 
 ### Example 2: WordPress Plugin Skill

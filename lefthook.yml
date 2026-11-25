@@ -28,8 +28,8 @@ pre-push:
     - name: validate branch name
       run: |
         BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        # Skip validation for main, develop, and bot branches
-        if [[ "$BRANCH" == "main" ]] || [[ "$BRANCH" == "develop" ]] || \
+        # Skip validation for main and bot branches
+        if [[ "$BRANCH" == "main" ]] || \
            [[ "$BRANCH" =~ ^(dependabot|renovate)/ ]]; then
           exit 0
         fi

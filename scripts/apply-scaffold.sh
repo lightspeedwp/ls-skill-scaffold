@@ -31,7 +31,7 @@ Options:
   -a, --author AUTHOR           Author name (default: Ash Shaw)
   -v, --version VERSION         Package version (default: 1.0.0)
   --coverage PERCENT            Jest coverage threshold (default: 80)
-  --branch-pattern PATTERN      Branch validation regex (default: ^(wp-db-|skill-|main|develop|master)$)
+  --branch-pattern PATTERN      Branch validation regex (default: ^(wp-db-|skill-|main|master)$)
   --dry-run                     Show what would be applied without changes
   --help                        Show this help message
 
@@ -125,7 +125,7 @@ fi
 AUTHOR="${AUTHOR:-Ash Shaw}"
 VERSION="${VERSION:-1.0.0}"
 COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-80}"
-BRANCH_PATTERN="${BRANCH_PATTERN:-^(wp-db-|skill-|main|develop|master)$}"
+BRANCH_PATTERN="${BRANCH_PATTERN:-^(wp-db-|skill-|main|master)$}"
 
 # Validate target directory
 if [[ ! -d "$TARGET_DIR" ]]; then
