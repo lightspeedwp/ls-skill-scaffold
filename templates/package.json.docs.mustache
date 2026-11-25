@@ -9,7 +9,7 @@
   },
   "scripts": {
     "prepare": "lefthook install",
-    "lint:md": "markdownlint '**/*.md'",
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     "lint:all": "npm run lint:md",
     "validate": "npm run lint:all"
   },

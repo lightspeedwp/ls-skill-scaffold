@@ -6,159 +6,55 @@ description: >-
 
 # {{skillName}}
 
-> {{skillDescription}}
+{{skillDescription}}
 
-**Version:** {{version}} | **License:** {{license}}
+## When to use this skill
 
----
-
-## Overview
-
-{{skillName}} is a{{#hasCLI}} CLI skill{{/hasCLI}}{{#hasAPI}} module skill{{/hasAPI}}{{#hasValidation}} validation skill{{/hasValidation}}{{^hasCLI}}{{^hasAPI}}{{^hasValidation}} skill{{/hasValidation}}{{/hasAPI}}{{/hasCLI}} for LightSpeed.
-
-**Key Benefits:**
 {{#features}}
 - {{.}}
 {{/features}}
+{{^features}}
+<!-- TODO: list the requests this skill handles, and the related ones it does not. -->
 
----
+- Use it for: describe the requests this skill handles.
+- Not for: describe the nearby requests another skill or tool should handle.
+{{/features}}
 
-## What Problem Does This Solve?
+## Workflow
 
-{{#useCases}}
-- **{{useCaseTitle}}:** {{useCaseDescription}}
-{{/useCases}}
+{{#howItWorks}}
+{{{howItWorks}}}
+{{/howItWorks}}
+{{^howItWorks}}
+<!-- TODO: replace these with the steps Claude follows, in order. -->
 
----
+1. Confirm what the person wants, and ask only for what is missing.
+2. Show what will change before changing anything.
+3. Make the change only after the person approves it.
+4. Report what was done, and anything not done or not checked.
+{{/howItWorks}}
 
-## Quick Start
-
-### Installation
-
-```bash
-npm install {{skillSlug}}
-```
-
-{{#quickStartCommand}}
-### First Command
-
-```bash
-{{quickStartCommand}}
-```
-{{/quickStartCommand}}
-
----
-
-## Installation
-
-{{#installation}}
-{{installation}}
-{{/installation}}
-
-{{^installation}}
-1. Clone or download this skill
-2. Run `npm install`
-3. Review `.github/CLAUDE.md` for development setup
-4. Start using the skill in your workflow
-{{/installation}}
-
----
-
-## Usage Examples
+## Examples
 
 {{#usageExamples}}
 ### {{usageTitle}}
 
+{{usageDescription}}
+
 ```bash
-{{usageCode}}
+{{{usageCode}}}
 ```
 
-{{usageDescription}}
 {{/usageExamples}}
-
 {{^usageExamples}}
-See `CLAUDE.md` for integration examples and development workflows.
+Run `{{{quickStartCommand}}}`, or ask in your own words.
+
 {{/usageExamples}}
-
----
-
-## How It Works
-
-{{#howItWorks}}
-{{howItWorks}}
-{{/howItWorks}}
-
-{{^howItWorks}}
-This skill integrates with {{skillType}} workflows. See the skill documentation for architectural details.
-{{/howItWorks}}
-
----
-
-## Advanced Usage
-
-{{#advancedUsage}}
-{{advancedUsage}}
-{{/advancedUsage}}
-
-{{^advancedUsage}}
-For advanced configurations, environment variables, and integration patterns, see `CLAUDE.md`.
-{{/advancedUsage}}
-
----
-
-## FAQ
-
-{{#faq}}
-### {{faqQuestion}}
-
-{{faqAnswer}}
-
-{{/faq}}
-
-{{^faq}}
-**Q: How do I report issues?**
-A: Open an issue on GitHub or contact the LightSpeed team.
-
-**Q: Can I modify this skill?**
-A: Yes! Follow the contribution guidelines in `CLAUDE.md`.
-
-**Q: What versions of Node.js are supported?**
-A: Node {{nodeMinVersion}} and later.
-{{/faq}}
-
----
-
 ## Troubleshooting
 
 {{#troubleshooting}}
-### {{troubleTitle}}
-
-**Symptom:** {{troubleSymptom}}
-**Solution:** {{troubleSolution}}
-
+- **{{troubleTitle}}:** {{troubleSymptom}} {{troubleSolution}}
 {{/troubleshooting}}
-
 {{^troubleshooting}}
-### Common Issues
-
-If you encounter problems:
-
-1. Check `CLAUDE.md` for setup and configuration
-2. Review test files in `__tests__/` for usage patterns
-3. Run `npm run lint:all` to validate your environment
-4. Check npm logs: `npm install --loglevel verbose`
-
-For more help, see the [GitHub Issues](https://github.com/lightspeedwp/{{skillSlug}}/issues).
+- If a step fails, stop, show the person the error, and ask before trying something else.
 {{/troubleshooting}}
-
----
-
-## Related Skills & Documentation
-
-- [LightSpeed Skills Directory](https://github.com/lightspeedwp)
-- [CLAUDE.md](./CLAUDE.md) — Development guide
-- [README.md](./README.md) — Project overview
-
----
-
-**Made with ♥ by LightSpeed**

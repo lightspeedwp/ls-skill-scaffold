@@ -11,7 +11,7 @@
     {{#hasProductionDeps}}
     "start": "node index.js",
     {{/hasProductionDeps}}
-    "test": "jest --coverage",
+    "test": "jest --coverage --passWithNoTests",
     "test:watch": "jest --watch",
     "test:verbose": "jest --verbose --coverage",
     {{#hasBatsTests}}
@@ -19,7 +19,7 @@
     {{/hasBatsTests}}
     "test:all": "npm run test{{#hasBatsTests}} && npm run test:bats{{/hasBatsTests}}",
     "lint:js": "eslint .",
-    "lint:md": "markdownlint '**/*.md'",
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules",
     {{#hasYamlLinting}}
     "lint:yaml": "yamllint . --config-file .yamllint.yml || echo '✓ YAML linting via yamllint'",
     {{/hasYamlLinting}}

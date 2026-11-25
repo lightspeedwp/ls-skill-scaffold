@@ -1,17 +1,12 @@
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
 # Testing
-{{#includeCoverage}}
 coverage/
 .nyc_output/
 .jest-skip/
-{{/includeCoverage}}
-*.test.js
-*.spec.js
 __pycache__/
 *.py[cod]
 *$py.class
@@ -66,13 +61,12 @@ temp/
 *.pid.lock
 
 # User-specific
-.claude/
+.claude/settings.local.json
 .remember/
 *.local
 
 # Project-specific
 scripts/temp/
-references/
 docs/temp/
 .schemas/
 
